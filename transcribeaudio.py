@@ -56,3 +56,33 @@ def action_item_extraction(transcription):
         ]
     )
     return completion.choices[0].message.content
+
+def sentiment_analysis(transcription):
+    response = client.chat.completions.create(
+        model="gpt-4",
+        temperature=0,
+        messages=[
+            {
+                "role": "system",
+                "content": "As an AI with expertise in language and emotion analysis, your task is to analyze the sentiment of the following text. Please consider the overall tone of the discussion, the emotion conveyed by the language used, and the context in which words and phrases are used. Indicate whether the sentiment is generally positive, negative, or neutral, and provide brief explanations for your analysis where possible."
+            },
+            {
+                "role": "user",
+                "content": transcription
+            }
+        ]
+    )
+    return completion.choices[0].message.content
+
+def save_as_docx(minutes, filename):
+    doc = Document()
+    for key, value in minutes.items():
+        # Replace underscores with spaces and capitalize each word for the heading
+        heading = ' '.join(word.capitalize() for word in key.split('_'))
+        doc.add_heading(heading, level=1)
+        doc.add_paragraph(value)
+        # Add a line break between sections
+        doc.add_paragraph()
+    doc.save(filename)
+
+

@@ -2,7 +2,7 @@ from openai import OpenAI
 
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")
-    # api_key="My API Key",
+    # api_key="",
 )
 from docx import Document
 

@@ -1,0 +1,1 @@
+transcription = transcribe_audio("./audio/EarningsCall.wav")

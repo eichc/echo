@@ -6,10 +6,103 @@
         <title>Echo - create meeting recordings/audio into organized meeting minutes</title>
         <link rel="stylesheet" href="https://pyscript.net/releases/2024.6.1/core.css">
         <script type="module" src="https://pyscript.net/releases/2024.6.1/core.js"></script>
+        <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+        <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
     </head>
 
     <body>
+        <h1>Enter a WAV File</h1>
+        <form id="user-form">
+            <label for="user-input">Enter your wav file pathway:</label>
+            <input type="text" id="user-input" name="user-input">
+            <button type="button" onclick="handleInput()">Submit</button>
+        </form>
         
+        <p id="output"></p>
+        
+        <!-- PyScript block to handle the form submission -->
+        <py-script>
+        from js import document
+        from backend/transcribeaudio import transcribeaudio
+        def handleInput():
+            wav_input = document.getElementById("wav-input").value
+            result = transcribeaudio(wav_input)
+            #output_element = document.getElementById("output")
+            #output_element.innerText = result
+        
+        handleInput.__name__ = "handleInput"
+        window.handleInput = handleInput
+        </py-script>
+
+        <h1>Record Audio</h1>
+
+        <button id="record-btn" onclick="startRecording()">Start Recording</button>
+        <button id="stop-btn" onclick="stopRecording()" disabled>Stop Recording</button>
+
+        <audio id="audio-playback" controls></audio>
+
+        <p id="transcription-output"></p>
+
+        <!-- PyScript block to handle the recorded audio -->
+        <py-script>
+        import numpy as np
+        import wave
+        from js import document, URL, Blobs
+        from pyodide.ffi import to_js
+        from transcribeaudio import transcribeaudio
+
+        def save_wav_file(blob):
+            array_buffer = blob.arrayBuffer().to_py()
+            audio_data = np.frombuffer(array_buffer, dtype=np.int16)
+            
+            with wave.open('recorded_audio.wav', 'wb') as wf:
+                wf.setnchannels(1)  # Assuming mono channel
+                wf.setsampwidth(2)  # Assuming 16-bit samples
+                wf.setframerate(44100)  # Assuming 44100 Hz sample rate
+                wf.writeframes(audio_data)
+
+            result = transcribeaudio(recorded_audio.wav)
+            document.getElementById("transcription-output").innerText = "Audio recorded and saved as recorded_audio.wav!"
+
+        window.save_wav_file = save_wav_file
+        </py-script>
+
+        <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        audioChunks = [];
+
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = document.getElementById("audio-playback");
+                        audio.src = audioUrl;
+
+                        // Call the PyScript function to save the WAV file
+                        pyodide.runPython(`window.save_wav_file(to_js(audioBlob))`);
+                    };
+                    mediaRecorder.start();
+
+                    document.getElementById("record-btn").disabled = true;
+                    document.getElementById("stop-btn").disabled = false;
+                });
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+
+            document.getElementById("record-btn").disabled = false;
+            document.getElementById("stop-btn").disabled = true;
+        }
+        </script>
     </body>
 
 </html>

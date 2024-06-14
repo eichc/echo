@@ -15,6 +15,13 @@ body {
     font-size: 3em;
 }
 
-.header-desc {
 
+.main-footer {
+    margin-top: 10px;
+    padding: 5px;
+    background-color: rgb(144, 188, 231);
+}
+
+.footer-list {
+    display: inline;
 }

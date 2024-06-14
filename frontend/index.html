@@ -11,11 +11,14 @@
     </head>
 
     <body>
-        <h1>Enter a WAV File</h1>
+        <h1>Enter a WAV File and a Document file name</h1>
         <form id="user-form">
             <label for="user-input">Enter your wav file pathway:</label>
-            <input type="text" id="user-input" name="user-input">
-            <button type="button" onclick="handleInput()">Submit</button>
+            <input type="text" id="wav-input" name="wav-input">
+            <br>
+            <label for="user-input">Enter a filename for your minutes:</label>
+            <input type="text" id="file-input" name="file-input">
+            <br><button type="button" onclick="handleInput()">Submit</button>
         </form>
         
         <p id="output"></p>
@@ -26,6 +29,7 @@
         from backend/transcribeaudio import transcribeaudio
         def handleInput():
             wav_input = document.getElementById("wav-input").value
+            filename = document.getElementById("file-input").value
             result = transcribeaudio(wav_input)
             #output_element = document.getElementById("output")
             #output_element.innerText = result
@@ -103,5 +107,7 @@
             document.getElementById("stop-btn").disabled = true;
         }
         </script>
+        <h1> Preview of Document: </h1>
+
     </body>
 </html>

@@ -2,16 +2,19 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.header {
-    background-color: lightslategray;
+.main-header {
+    background-color: rgb(144, 188, 231);
+    text-align: center;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
 }
 
-.header-list {
-    display: inline;
-}
-
-.title {
+.header-welcome {
     font-weight: bold;
     text-align: center;
     font-size: 3em;
+}
+
+.header-desc {
+
 }

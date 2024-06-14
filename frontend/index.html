@@ -3,14 +3,21 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>Echo - create meeting recordings/audio into organized meeting minutes</title>
+        <title>Echo - An RCOS Project</title>
         <link rel="stylesheet" href="https://pyscript.net/releases/2024.6.1/core.css">
         <script type="module" src="https://pyscript.net/releases/2024.6.1/core.js"></script>
         <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
         <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+        <link rel="stylesheet" href="styles.css">
     </head>
 
     <body>
+        <header class="main-header">
+            <div class="header-welcome">Welcome to Echo!</div>
+            <div class="header-desc">
+                Create meeting recordings/audio into organized meeting minutes
+            </div>
+        </header>
         <h1>Enter a WAV File and a Document file name</h1>
         <form id="user-form">
             <label for="user-input">Enter your wav file pathway:</label>

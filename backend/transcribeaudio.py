@@ -6,10 +6,29 @@ client = OpenAI(
 )
 from docx import Document
 
-def transcribe_audio(audio_file_path):
+def transcribe_audio(audio_file_path, language='en'):
     with open(audio_file_path, 'rb') as audio_file:
-        transcription = client.audio.transcriptions.create("whisper-1", audio_file)
+        transcription = client.audio.transcriptions.create(
+            model="whisper-1", 
+            file=audio_file)
     return transcription['text']
+
+def abstract_summary_extraction(transcription):
+    response = client.chat.completions.create(
+        model="gpt-4",
+        temperature=0,
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a highly skilled AI trained in language comprehension and summarization. I would like you to read the following text and summarize it into a concise abstract paragraph. Aim to retain the most important points, providing a coherent and readable summary that could help a person understand the main points of the discussion without needing to read the entire text. Please avoid unnecessary details or tangential points."
+            },
+            {
+                "role": "user",
+                "content": transcription
+            }
+        ]
+    )
+    return completion.choices[0].message.content
 
 def meeting_minutes(transcription):
     abstract_summary = abstract_summary_extraction(transcription)
@@ -22,6 +41,23 @@ def meeting_minutes(transcription):
         'action_items': action_items,
         'sentiment': sentiment
     }
+
+def abstract_summary_extraction(transcription):
+    response = client.chat.completions.create(
+        model="gpt-4",
+        temperature=0,
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a highly skilled AI trained in language comprehension and summarization. I would like you to read the following text and summarize it into a concise abstract paragraph. Aim to retain the most important points, providing a coherent and readable summary that could help a person understand the main points of the discussion without needing to read the entire text. Please avoid unnecessary details or tangential points."
+            },
+            {
+                "role": "user",
+                "content": transcription
+            }
+        ]
+    )
+    return completion.choices[0].message.content
 
 def key_points_extraction(transcription):
     response = client.chat.completions.create(
@@ -84,5 +120,12 @@ def save_as_docx(minutes, filename):
         # Add a line break between sections
         doc.add_paragraph()
     doc.save(filename)
+    html_content = "<html><body>"
+    for para in doc.paragraphs:
+        html_content += f"<p>{escape(para.text)}</p>"
+        
+    html_content += "</body></html>"
+    return html_content
+
 
 

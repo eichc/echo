@@ -40,6 +40,22 @@
                 <button type="button" onclick="handleInput()">Submit</button>
             </form>
             <p id="output"></p>
+            <!-- PyScript block to handle the form submission -->
+        <py-script>
+            from js import document
+            from backend/transcribeaudio import transcribeaudio
+            def handleInput():
+                wav_input = document.getElementById("wav-input").value
+                filename = document.getElementById("file-input").value
+                result = transcribe_audio(wav_input)
+                minutes = meeting_minutes(result);
+                preview = save_as_docx(minutes, filename);
+                #output_element = document.getElementById("output")
+                #output_element.innerText = result
+            
+            handleInput.__name__ = "handleInput"
+            window.handleInput = handleInput
+            </py-script>
         </section>
 
         <section class="record-audio-section" style="display: none;">
@@ -48,6 +64,32 @@
             <button id="stop-btn" onclick="stopRecording()" disabled>Stop Recording</button>
             <audio id="audio-playback" controls></audio>
             <p id="transcription-output"></p>
+
+            <!-- PyScript block to handle the recorded audio -->
+        <py-script>
+            import numpy as np
+            import wave
+            from js import document, URL, Blobs
+            from pyodide.ffi import to_js
+            from transcribeaudio import transcribeaudio
+    
+            def save_wav_file(blob):
+                array_buffer = blob.arrayBuffer().to_py()
+                audio_data = np.frombuffer(array_buffer, dtype=np.int16)
+                
+                with wave.open('recorded_audio.wav', 'wb') as wf:
+                    wf.setnchannels(1)  # Assuming mono channel
+                    wf.setsampwidth(2)  # Assuming 16-bit samples
+                    wf.setframerate(44100)  # Assuming 44100 Hz sample rate
+                    wf.writeframes(audio_data)
+    
+                result = transcribe_audio(recorded_audio.wav)
+                minutes = meeting_minutes(result);
+                preview = save_as_docx(minutes, filename);
+                document.getElementById("transcription-output").innerText = "Audio recorded and saved as recorded_audio.wav!"
+    
+            window.save_wav_file = save_wav_file
+            </py-script>
         </section>
     </main>
 
@@ -104,5 +146,22 @@
             showSection('selection-section');
         });
     </script>
+
+    <h1> Preview of Document: </h1>
+    <py-script>
+        from docx import Document
+        from html import escape
+        from js import document, window
+        import os
+        
+        def docx_to_html(docx_path):
+            doc = Document(docx_path)
+            html_content = "<html><body>"
+            for para in doc.paragraphs:
+                html_content += f"<p>{escape(para.text)}</p>"
+        
+            html_content += "</body></html>"
+            return html_content
+    </py-script>
 </body>
 </html>

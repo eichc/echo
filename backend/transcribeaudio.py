@@ -120,5 +120,12 @@ def save_as_docx(minutes, filename):
         # Add a line break between sections
         doc.add_paragraph()
     doc.save(filename)
+    html_content = "<html><body>"
+    for para in doc.paragraphs:
+        html_content += f"<p>{escape(para.text)}</p>"
+        
+    html_content += "</body></html>"
+    return html_content
+
 
 

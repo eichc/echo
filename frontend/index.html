@@ -37,7 +37,9 @@
         def handleInput():
             wav_input = document.getElementById("wav-input").value
             filename = document.getElementById("file-input").value
-            result = transcribeaudio(wav_input)
+            result = transcribe_audio(wav_input)
+            minutes = meeting_minutes(result);
+            preview = save_as_docx(minutes, filename);
             #output_element = document.getElementById("output")
             #output_element.innerText = result
         
@@ -72,7 +74,9 @@
                 wf.setframerate(44100)  # Assuming 44100 Hz sample rate
                 wf.writeframes(audio_data)
 
-            result = transcribeaudio(recorded_audio.wav)
+            result = transcribe_audio(recorded_audio.wav)
+            minutes = meeting_minutes(result);
+            preview = save_as_docx(minutes, filename);
             document.getElementById("transcription-output").innerText = "Audio recorded and saved as recorded_audio.wav!"
 
         window.save_wav_file = save_wav_file
@@ -115,6 +119,20 @@
         }
         </script>
         <h1> Preview of Document: </h1>
-
+        <py-script>
+            from docx import Document
+            from html import escape
+            from js import document, window
+            import os
+            
+            def docx_to_html(docx_path):
+                doc = Document(docx_path)
+                html_content = "<html><body>"
+                for para in doc.paragraphs:
+                    html_content += f"<p>{escape(para.text)}</p>"
+            
+                html_content += "</body></html>"
+                return html_content
+        </py-script>
     </body>
 </html>

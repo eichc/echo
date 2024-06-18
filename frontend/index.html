@@ -33,7 +33,7 @@
         <!-- PyScript block to handle the form submission -->
         <py-script>
         from js import document
-        from backend/transcribeaudio import transcribeaudio
+        from backend/transcribeaudio import transcribe_audio
         def handleInput():
             wav_input = document.getElementById("wav-input").value
             filename = document.getElementById("file-input").value
@@ -62,7 +62,7 @@
         import wave
         from js import document, URL, Blobs
         from pyodide.ffi import to_js
-        from transcribeaudio import transcribeaudio
+        from transcribeaudio import transcribe_audio
 
         def save_wav_file(blob):
             array_buffer = blob.arrayBuffer().to_py()

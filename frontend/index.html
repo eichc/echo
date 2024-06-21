@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Echo - Home</title>
+    <link rel="icon" href="/frontend/assets/favicon.png">
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.6.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.6.1/core.js"></script>
     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
@@ -12,11 +13,13 @@
 </head>
 <body>
     <header class="main-header">
-        <div class="header-welcome">Welcome to Echo!</div>
-        <div class="header-desc">
-            Create meeting recordings/audio into organized meeting minutes
-        </div>
+        <a href="/frontend/index.html"><img class="header-logo" src="/frontend/assets/logo.png"></a>
     </header>
+
+    <h1 class="title">Welcome to Echo!</h1>
+    <div class="welcome-desc">
+        Create meeting recordings/audio into organized meeting minutes
+    </div>
 
     <main>
         <!-- Selection Section -->
@@ -30,7 +33,7 @@
             <h1>Upload Your Files</h1>
             <form id="user-form">
                 <div class="input-group">
-                    <label for="file-input">Document File Name:</label>
+                    <label for="file-input">Output Document File Name:</label>
                     <input type="text" id="file-input" name="file-input" placeholder="Enter filename">
                 </div>
                 <div class="input-group">

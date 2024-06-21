@@ -7,22 +7,54 @@ body {
 }
 
 .main-header {
+    display:flex;
     margin-top:0;
     background-color: rgb(144, 188, 231);
-    text-align: center;
+    justify-content: center;
     padding: 20px;
     margin-bottom: 20px;
 }
 
-.header-welcome {
+.header-logo {
+    height:75px;
+}
+
+.title {
     font-weight: bold;
     font-size: 3em;
     margin: 0;
 }
 
-.title {
-    text-align: center;
+.profiles {
+    display: flex;
+    justify-content: center;
+    flex-wrap:wrap;
 }
+
+.profile {
+    margin-top: 10px;
+    display:flex;
+    max-width:600px
+}
+
+.profile-basics {
+    width: 40%;
+}
+
+.profile-name {
+    font-weight:bold;
+    font-size: 1.25em;
+}
+
+.profile-title {
+    font-weight:initial;
+    font-style:italic;
+}
+
+.profile-bio {
+    width: 60%;
+}
+
 
 
 .footer {

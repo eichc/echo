@@ -13,9 +13,7 @@
 <body>
     <header class="main-header">
         <div class="header-welcome">Welcome to Echo!</div>
-        <div class="header-desc">
-            Create meeting recordings/audio into organized meeting minutes
-        </div>
+        <div class="header-desc">Create meeting recordings/audio into organized meeting minutes</div>
     </header>
 
     <main>
@@ -26,6 +24,7 @@
             <button onclick="showSection('record-audio-section')">Record Audio</button>
         </section>
 
+        <!-- File Input Section -->
         <section class="file-input-section" style="display: none;">
             <h1>Upload Your Files</h1>
             <form id="user-form">
@@ -40,56 +39,21 @@
                 <button type="button" onclick="handleInput()">Submit</button>
             </form>
             <p id="output"></p>
-            <!-- PyScript block to handle the form submission -->
-        <py-script>
-            from js import document
-            from backend/transcribeaudio import transcribe_audio
-            def handleInput():
-                wav_input = document.getElementById("wav-input").value
-                filename = document.getElementById("file-input").value
-                result = transcribe_audio(wav_input)
-                minutes = meeting_minutes(result);
-                preview = save_as_docx(minutes, filename);
-                #output_element = document.getElementById("output")
-                #output_element.innerText = result
-           
-            handleInput.__name__ = "handleInput"
-            window.handleInput = handleInput
-            </py-script>
         </section>
 
+        <!-- Record Audio Section -->
         <section class="record-audio-section" style="display: none;">
             <h1>Record Audio</h1>
             <button id="record-btn" onclick="startRecording()">Start Recording</button>
             <button id="stop-btn" onclick="stopRecording()" disabled>Stop Recording</button>
             <audio id="audio-playback" controls></audio>
             <p id="transcription-output"></p>
+        </section>
 
-            <!-- PyScript block to handle the recorded audio -->
-        <py-script>
-            import numpy as np
-            import wave
-            from js import document, URL, Blobs
-            from pyodide.ffi import to_js
-            from transcribeaudio import transcribe_audio
-    
-            def save_wav_file(blob):
-                array_buffer = blob.arrayBuffer().to_py()
-                audio_data = np.frombuffer(array_buffer, dtype=np.int16)
-                
-                with wave.open('recorded_audio.wav', 'wb') as wf:
-                    wf.setnchannels(1)  # Assuming mono channel
-                    wf.setsampwidth(2)  # Assuming 16-bit samples
-                    wf.setframerate(44100)  # Assuming 44100 Hz sample rate
-                    wf.writeframes(audio_data)
-    
-                result = transcribe_audio(recorded_audio.wav)
-                minutes = meeting_minutes(result);
-                preview = save_as_docx(minutes, filename);
-                document.getElementById("transcription-output").innerText = "Audio recorded and saved as recorded_audio.wav!"
-    
-            window.save_wav_file = save_wav_file
-            </py-script>
+        <!-- Preview Section -->
+        <section class="preview-section" style="display: none;">
+            <h1>Preview of Document</h1>
+            <div id="preview-content"></div>
         </section>
     </main>
 
@@ -128,6 +92,7 @@
             document.getElementById("record-btn").disabled = false;
             document.getElementById("stop-btn").disabled = true;
         }
+
         // Function to show the selected section and hide others
         function showSection(sectionClass) {
             const sections = document.querySelectorAll('main section');
@@ -146,21 +111,64 @@
         });
     </script>
 
-    <h1> Preview of Document: </h1>
     <py-script>
+        from js import document, window
+        from backend.transcribeaudio import transcribe_audio
         from docx import Document
         from html import escape
-        from js import document, window
         import os
-        
+
+        def handleInput():
+            wav_input = document.getElementById("wav-input").files[0]
+            filename = document.getElementById("file-input").value
+            if not wav_input or not filename:
+                document.getElementById("output").innerText = "Please provide a WAV file and a document filename."
+                return
+            
+            result = transcribe_audio(wav_input)
+            minutes = meeting_minutes(result)
+            save_as_docx(minutes, filename)
+
+            # Hide form and show preview
+            document.querySelector(".file-input-section").style.display = "none"
+            document.querySelector(".preview-section").style.display = "block"
+
+            # Display preview
+            preview_html = docx_to_html(f"{filename}.docx")
+            document.getElementById("preview-content").innerHTML = preview_html
+
+        def save_wav_file(blob):
+            array_buffer = blob.arrayBuffer().to_py()
+            audio_data = np.frombuffer(array_buffer, dtype=np.int16)
+            
+            with wave.open('recorded_audio.wav', 'wb') as wf:
+                wf.setnchannels(1)
+                wf.setsampwidth(2)
+                wf.setframerate(44100)
+                wf.writeframes(audio_data)
+    
+            result = transcribe_audio('recorded_audio.wav')
+            minutes = meeting_minutes(result)
+            save_as_docx(minutes, 'recorded_audio')
+
+            # Hide form and show preview
+            document.querySelector(".record-audio-section").style.display = "none"
+            document.querySelector(".preview-section").style.display = "block"
+
+            # Display preview
+            preview_html = docx_to_html("recorded_audio.docx")
+            document.getElementById("preview-content").innerHTML = preview_html
+
         def docx_to_html(docx_path):
             doc = Document(docx_path)
             html_content = "<html><body>"
             for para in doc.paragraphs:
                 html_content += f"<p>{escape(para.text)}</p>"
-        
             html_content += "</body></html>"
             return html_content
+        
+        window.handleInput = handleInput
+        window.save_wav_file = save_wav_file
     </py-script>
 
     <footer class="footer">

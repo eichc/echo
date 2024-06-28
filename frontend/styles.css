@@ -160,3 +160,50 @@ audio {
     width: 100%;
     margin-top: 15px;
 }
+
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    text-align: center;
+}
+
+.main-header {
+    display: flex;
+    margin-top: 0;
+    background-color: rgb(144, 188, 231);
+    justify-content: center;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.header-logo {
+    height: 75px;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 3em;
+    margin: 0;
+}
+
+.profiles {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.profile {
+    margin-top: 10px;
+    display: flex;
+    max-width: 600px;
+}
+
+.profile-basics {
+    width: 40%;
+}
+
+.profile-name {
+    font-weight: bold;

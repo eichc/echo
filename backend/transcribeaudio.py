@@ -1,10 +1,11 @@
 from openai import OpenAI
+from docx import Document
+from fpdf import FPDF
 
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")
     # api_key="",
 )
-from docx import Document
 
 def transcribe_audio(audio_file_path, language='en'):
     with open(audio_file_path, 'rb') as audio_file:
@@ -28,36 +29,7 @@ def abstract_summary_extraction(transcription):
             }
         ]
     )
-    return completion.choices[0].message.content
-
-def meeting_minutes(transcription):
-    abstract_summary = abstract_summary_extraction(transcription)
-    key_points = key_points_extraction(transcription)
-    action_items = action_item_extraction(transcription)
-    sentiment = sentiment_analysis(transcription)
-    return {
-        'abstract_summary': abstract_summary,
-        'key_points': key_points,
-        'action_items': action_items,
-        'sentiment': sentiment
-    }
-
-def abstract_summary_extraction(transcription):
-    response = client.chat.completions.create(
-        model="gpt-4",
-        temperature=0,
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a highly skilled AI trained in language comprehension and summarization. I would like you to read the following text and summarize it into a concise abstract paragraph. Aim to retain the most important points, providing a coherent and readable summary that could help a person understand the main points of the discussion without needing to read the entire text. Please avoid unnecessary details or tangential points."
-            },
-            {
-                "role": "user",
-                "content": transcription
-            }
-        ]
-    )
-    return completion.choices[0].message.content
+    return response.choices[0].message.content
 
 def key_points_extraction(transcription):
     response = client.chat.completions.create(
@@ -74,7 +46,7 @@ def key_points_extraction(transcription):
             }
         ]
     )
-    return completion.choices[0].message.content
+    return response.choices[0].message.content
 
 def action_item_extraction(transcription):
     response = client.chat.completions.create(
@@ -91,7 +63,7 @@ def action_item_extraction(transcription):
             }
         ]
     )
-    return completion.choices[0].message.content
+    return response.choices[0].message.content
 
 def sentiment_analysis(transcription):
     response = client.chat.completions.create(
@@ -108,24 +80,45 @@ def sentiment_analysis(transcription):
             }
         ]
     )
-    return completion.choices[0].message.content
+    return response.choices[0].message.content
+
+def meeting_minutes(transcription):
+    abstract_summary = abstract_summary_extraction(transcription)
+    key_points = key_points_extraction(transcription)
+    action_items = action_item_extraction(transcription)
+    sentiment = sentiment_analysis(transcription)
+    return {
+        'abstract_summary': abstract_summary,
+        'key_points': key_points,
+        'action_items': action_items,
+        'sentiment': sentiment
+    }
 
 def save_as_docx(minutes, filename):
     doc = Document()
     for key, value in minutes.items():
-        # Replace underscores with spaces and capitalize each word for the heading
         heading = ' '.join(word.capitalize() for word in key.split('_'))
         doc.add_heading(heading, level=1)
         doc.add_paragraph(value)
-        # Add a line break between sections
-        doc.add_paragraph()
+        doc.add_paragraph()  # Add a line break between sections
     doc.save(filename)
-    html_content = "<html><body>"
-    for para in doc.paragraphs:
-        html_content += f"<p>{escape(para.text)}</p>"
-        
-    html_content += "</body></html>"
-    return html_content
 
+def save_as_pdf(minutes, filename):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    for key, value in minutes.items():
+        heading = ' '.join(word.capitalize() for word in key.split('_'))
+        pdf.set_font("Arial", 'B', size=14)
+        pdf.cell(200, 10, txt=heading, ln=True, align='L')
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, txt=value)
+        pdf.ln(10)  # Add a line break between sections
+    pdf.output(filename)
 
-
+# Example usage:
+# transcription = transcribe_audio("path_to_audio_file")
+# minutes = meeting_minutes(transcription)
+# save_as_docx(minutes, "meeting_minutes.docx")
+# save_as_pdf(minutes, "meeting_minutes.pdf")

@@ -100,22 +100,31 @@
           <audio id="audio-playback" controls></audio>
           <p id="transcription-output"></p>
 
-          <!-- PyScript block to handle the recorded audio -->
-          <py-script>
-            import numpy as np import wave from js import document, URL, Blobs
-            from pyodide.ffi import to_js from transcribeaudio import
-            transcribe_audio def save_wav_file(blob): array_buffer =
-            blob.arrayBuffer().to_py() audio_data = np.frombuffer(array_buffer,
-            dtype=np.int16) with wave.open('recorded_audio.wav', 'wb') as wf:
-            wf.setnchannels(1) # Assuming mono channel wf.setsampwidth(2) #
-            Assuming 16-bit samples wf.setframerate(44100) # Assuming 44100 Hz
-            sample rate wf.writeframes(audio_data) result =
-            transcribe_audio(recorded_audio.wav) minutes =
-            meeting_minutes(result); preview = save_as_docx(minutes, filename);
-            document.getElementById("transcription-output").innerText = "Audio
-            recorded and saved as recorded_audio.wav!" window.save_wav_file =
-            save_wav_file
-          </py-script>
+            <!-- PyScript block to handle the recorded audio -->
+        <py-script>
+            import numpy as np
+            import wave
+            from js import document, URL, Blobs
+            from pyodide.ffi import to_js
+            from transcribeaudio import transcribe_audio
+    
+            def save_wav_file(blob):
+                array_buffer = blob.arrayBuffer().to_py()
+                audio_data = np.frombuffer(array_buffer, dtype=np.int16)
+                
+                with wave.open('recorded_audio.wav', 'wb') as wf:
+                    wf.setnchannels(1)  # Assuming mono channel
+                    wf.setsampwidth(2)  # Assuming 16-bit samples
+                    wf.setframerate(44100)  # Assuming 44100 Hz sample rate
+                    wf.writeframes(audio_data)
+    
+                result = transcribe_audio(recorded_audio.wav)
+                minutes = meeting_minutes(result);
+                preview = save_as_docx(minutes, filename);
+                document.getElementById("transcription-output").innerText = "Audio recorded and saved as recorded_audio.wav!"
+    
+            window.save_wav_file = save_wav_file
+            </py-script>
         </section>
       </main>
 
@@ -124,29 +133,28 @@
         let audioChunks = [];
 
         function startRecording() {
-          navigator.mediaDevices
-            .getUserMedia({ audio: true })
-            .then((stream) => {
-              mediaRecorder = new MediaRecorder(stream);
-              mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-              };
-              mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-                audioChunks = [];
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        audioChunks = [];
 
                 const audioUrl = URL.createObjectURL(audioBlob);
                 const audio = document.getElementById("audio-playback");
                 audio.src = audioUrl;
 
-                // Call the PyScript function to save the WAV file
-                pyodide.runPython(`window.save_wav_file(to_js(audioBlob))`);
-              };
-              mediaRecorder.start();
+                        // Call the PyScript function to save the WAV file
+                        pyodide.runPython(`window.save_wav_file(to_js(audioBlob))`);
+                    };
+                    mediaRecorder.start();
 
-              document.getElementById("record-btn").disabled = true;
-              document.getElementById("stop-btn").disabled = false;
-            });
+                    document.getElementById("record-btn").disabled = true;
+                    document.getElementById("stop-btn").disabled = false;
+                });
         }
 
         function stopRecording() {
@@ -225,8 +233,8 @@
           };
           reader.readAsArrayBuffer(file);
         }
-      </script>
-    </div>
+    </script>
+    
 
     <footer class="footer">
       <div class="footer-content">

@@ -84,11 +84,17 @@
                 array_buffer = blob.arrayBuffer().to_py()
                 audio_data = np.frombuffer(array_buffer, dtype=np.int16)
                 
+                channels = 1  # Mono
+                sample_width = 2  # 16-bit
+                sample_rate = 44100  # 44100 Hz
+                duration_seconds = 2 * 60 * 60  # 2 hours in seconds
+                max_samples = sample_rate * duration_seconds
+
                 with wave.open('recorded_audio.wav', 'wb') as wf:
-                    wf.setnchannels(1)  # Assuming mono channel
-                    wf.setsampwidth(2)  # Assuming 16-bit samples
-                    wf.setframerate(44100)  # Assuming 44100 Hz sample rate
-                    wf.writeframes(audio_data)
+                    wf.setnchannels(channels)
+                    wf.setsampwidth(sample_width)
+                    wf.setframerate(sample_rate)
+                    wf.writeframes(audio_data[:max_samples * sample_width * channels])
     
                 result = transcribe_audio(recorded_audio.wav)
                 minutes = meeting_minutes(result);
@@ -104,29 +110,31 @@
         let mediaRecorder;
         let audioChunks = [];
 
-        function startRecording() {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    mediaRecorder = new MediaRecorder(stream);
-                    mediaRecorder.ondataavailable = event => {
-                        audioChunks.push(event.data);
-                    };
-                    mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                        audioChunks = [];
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                audioChunks = [];
 
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = document.getElementById("audio-playback");
-                        audio.src = audioUrl;
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = document.getElementById("audio-playback");
+                audio.src = audioUrl;
 
-                        // Call the PyScript function to save the WAV file
-                        pyodide.runPython(`window.save_wav_file(to_js(audioBlob))`);
-                    };
-                    mediaRecorder.start();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                pyodide.runPythonAsync(`
+                    from js import save_wav_file, window
+                    window.arrayBuffer = arrayBuffer
+                    save_wav_file(to_js(window.arrayBuffer))
+                `, { arrayBuffer });
+            };
+            mediaRecorder.start();
 
-                    document.getElementById("record-btn").disabled = true;
-                    document.getElementById("stop-btn").disabled = false;
-                });
+            document.getElementById("record-btn").disabled = true;
+            document.getElementById("stop-btn").disabled = false;
         }
 
         function stopRecording() {
@@ -208,6 +216,61 @@
             reader.readAsArrayBuffer(file);
         }
     </script>
+    <py-script>
+        import wave
+        import os
+        
+        def split_wav_file(input_wav_path, chunk_size=25 * 1024 * 1024):
+            # Define the base name for the output chunks
+            base_name = os.path.splitext(input_wav_path)[0]
+            
+            # Open the input WAV file
+            with wave.open(input_wav_path, 'rb') as wf:
+                params = wf.getparams()
+                frame_rate = wf.getframerate()
+                channels = wf.getnchannels()
+                sampwidth = wf.getsampwidth()
+                frames_per_chunk = chunk_size // (frame_rate * channels * sampwidth)
+                
+                chunk_index = 0
+                while True:
+                    frames = wf.readframes(frames_per_chunk)
+                    if not frames:
+                        break
+                    
+                    chunk_filename = f"{base_name}_chunk{chunk_index}.wav"
+                    with wave.open(chunk_filename, 'wb') as chunk_wf:
+                        chunk_wf.setparams(params)
+                        chunk_wf.writeframes(frames)
+                    
+                    chunk_index += 1
+        
+        def save_wav_file(blob):
+            array_buffer = blob.arrayBuffer().to_py()
+            audio_data = np.frombuffer(array_buffer, dtype=np.int16)
+            
+            channels = 1  # Mono
+            sample_width = 2  # 16-bit
+            sample_rate = 44100  # 44100 Hz
+            duration_seconds = 2 * 60 * 60  # 2 hours in seconds
+            max_samples = sample_rate * duration_seconds
+        
+            with wave.open('recorded_audio.wav', 'wb') as wf:
+                wf.setnchannels(channels)
+                wf.setsampwidth(sample_width)
+                wf.setframerate(sample_rate)
+                wf.writeframes(audio_data[:max_samples * sample_width * channels])
+        
+            # Split the file into 25MB chunks if needed
+            split_wav_file('recorded_audio.wav')
+        
+            result = transcribe_audio('recorded_audio.wav')
+            minutes = meeting_minutes(result)
+            preview = save_as_docx(minutes, filename)
+            document.getElementById("transcription-output").innerText = "Audio recorded and saved as recorded_audio.wav!"
+        
+        window.save_wav_file = save_wav_file
+    </py-script>
     
 
     <footer class="footer">

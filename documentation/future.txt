@@ -1,0 +1,10 @@
+FUTURE PLANS:
+
+- convert mp3 to wav
+- test api code
+- download as pdf
+- finishing bios
+- only show preview after completion
+- splitting longer audio into 25mb chunks (anything longer than 30 minutes)
+- set hard limit (2 hours?)
+- restrict types of audio files to be uploaded

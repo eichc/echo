@@ -174,6 +174,63 @@
         });
     </script>
 
+<h1> Preview of Document: </h1>
+<py-script>
+    from docx import Document
+    from html import escape
+    from js import document, window
+    import os
+
+    def docx_to_html(docx_path):
+        doc = Document(docx_path)
+        html_content = "<html><body>"
+        for para in doc.paragraphs:
+            html_content += f"<p>{escape(para.text)}</p>"
+
+        html_content += "</body></html>"
+        return html_content
+
+    def display_html_content(html_content):
+        output_div = Element("output")
+        output_div.element.innerHTML = html_content
+</py-script>
+
+<script type="text/javascript">
+    async function convertDocx() {
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput.files.length === 0) {
+            alert('Please select a file.');
+            return;
+        }
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = async function(event) {
+            const arrayBuffer = event.target.result;
+            const pyodide = await loadPyodide();
+            await pyodide.loadPackage('docx');
+            pyodide.runPython(`
+                from js import display_html_content, window
+                from docx import Document
+                from html import escape
+                
+                def docx_to_html(docx_content):
+                    doc = Document(docx_content)
+                    html_content = "<html><body>"
+                    for para in doc.paragraphs:
+                        html_content += f"<p>{escape(para.text)}</p>"
+                    html_content += "</body></html>"
+                    return html_content
+                
+                docx_content = bytearray(window.arrayBuffer)
+                html_content = docx_to_html(docx_content)
+                display_html_content(html_content)
+            `, { arrayBuffer });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+</script>
+
+
     <footer class="footer">
         <div class="footer-content">
             <a href="https://github.com/eichc/echo" target="_blank">GitHub</a>

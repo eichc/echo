@@ -8,19 +8,16 @@ body {
 
 .main-header {
     margin-top:0;
-    height: 75px;
+    height: 115px;
     background-color: rgb(144, 188, 231);
-    justify-content: center;
     padding: 20px;
     margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .header-logo {
     height:75px;
-}
-
-.main-content {
-    min-height: calc(100vh - 135px - 65px);
 }
 
 .title {
@@ -29,48 +26,14 @@ body {
     margin: 0;
 }
 
-.profiles {
-    display: flex;
-    justify-content: center;
-    flex-wrap:wrap;
-    padding: 10px;
-    padding-bottom: 50px;
-}
-
-.profile {
-    margin-top: 10px;
-    display:flex;
-    max-width:700px;
-}
-
-.profile-basics {
-    width: 40%;
-}
-
-.profile-name {
-    font-weight:bold;
-    font-size: 1.25em;
-}
-
-.profile-title {
-    font-weight:initial;
-    font-style:italic;
-}
-
-.profile-bio {
-    width: 60%;
-    text-align:justify;
-}
-
-
 .footer {
     background-color: rgb(144, 188, 231);
+    height: 65px;
     padding: 20px 0;
     text-align: center;
-    position: 0;
+    position: fixed;
     width: 100%;
     bottom: 0;
-    height: 25px;
 }
 
 .footer-content {
@@ -167,50 +130,3 @@ audio {
     width: 100%;
     margin-top: 15px;
 }
-
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-    text-align: center;
-}
-
-.main-header {
-    display: flex;
-    margin-top: 0;
-    background-color: rgb(144, 188, 231);
-    justify-content: center;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.header-logo {
-    height: 75px;
-}
-
-.title {
-    font-weight: bold;
-    font-size: 3em;
-    margin: 0;
-}
-
-.profiles {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.profile {
-    margin-top: 10px;
-    display: flex;
-    max-width: 600px;
-}
-
-.profile-basics {
-    width: 40%;
-}
-
-.profile-name {
-    font-weight: bold;

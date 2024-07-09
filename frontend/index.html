@@ -1,32 +1,45 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Echo - Home</title>
-    <link rel="icon" href="/frontend/assets/favicon.png">
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.6.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2024.6.1/core.js"></script>
+    <link rel="icon" href="/frontend/assets/favicon.png" />
+    <link
+      rel="stylesheet"
+      href="https://pyscript.net/releases/2024.6.1/core.css"
+    />
+    <script
+      type="module"
+      src="https://pyscript.net/releases/2024.6.1/core.js"
+    ></script>
     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <header class="main-header">
-        <a href="/frontend/index.html"><img class="header-logo" src="/frontend/assets/logo.png"></a>
+      <a href="/frontend/index.html"
+        ><img class="header-logo" src="/frontend/assets/logo.png"
+      /></a>
     </header>
 
-    <h1 class="title">Welcome to Echo!</h1>
-    <div class="welcome-desc">
+    <div class="main-content">
+      <h1 class="title">Welcome to Echo!</h1>
+      <div class="welcome-desc">
         Create meeting recordings/audio into organized meeting minutes
-    </div>
+      </div>
 
-    <main>
+      <main>
         <!-- Selection Section -->
         <section class="selection-section">
-            <h1>Choose an Option</h1>
-            <button onclick="showSection('file-input-section')">Upload Your Files</button>
-            <button onclick="showSection('record-audio-section')">Record Audio</button>
+          <h1>Choose an Option</h1>
+          <button onclick="showSection('file-input-section')">
+            Upload Your Files
+          </button>
+          <button onclick="showSection('record-audio-section')">
+            Record Audio
+          </button>
         </section>
 
         <section class="file-input-section" style="display: none;">
@@ -85,10 +98,51 @@
                 <input type="radio" id="audio-pdf" name="audio-doc-format" value="pdf">
                 <label for="audio-pdf">PDF</label>
             </div>
-            <button id="record-btn" onclick="startRecording()">Start Recording</button>
-            <button id="stop-btn" onclick="stopRecording()" disabled>Stop Recording</button>
-            <audio id="audio-playback" controls></audio>
-            <p id="transcription-output"></p>
+            <div class="input-group">
+              <label for="wav-input">WAV File:</label>
+              <input
+                type="file"
+                id="wav-input"
+                name="wav-input"
+                accept=".wav"
+              />
+            </div>
+            <button type="button" onclick="handleInput()">Submit</button>
+          </form>
+          <p id="output"></p>
+          <!-- PyScript block to handle the form submission -->
+          <py-script>
+            from js import document from backend/transcribeaudio import
+            transcribe_audio def handleInput(): wav_input =
+            document.getElementById("wav-input").value filename =
+            document.getElementById("file-input").value result =
+            transcribe_audio(wav_input) minutes = meeting_minutes(result);
+            preview = save_as_docx(minutes, filename); #output_element =
+            document.getElementById("output") #output_element.innerText = result
+            handleInput.__name__ = "handleInput" window.handleInput =
+            handleInput
+          </py-script>
+        </section>
+
+        <section class="record-audio-section" style="display: none">
+          <h1>Record Audio</h1>
+          <div class="input-group">
+            <label for="file-input">Document File Name:</label>
+            <input
+              type="text"
+              id="file-input"
+              name="file-input"
+              placeholder="Enter filename"
+            />
+          </div>
+          <button id="record-btn" onclick="startRecording()">
+            Start Recording
+          </button>
+          <button id="stop-btn" onclick="stopRecording()" disabled>
+            Stop Recording
+          </button>
+          <audio id="audio-playback" controls></audio>
+          <p id="transcription-output"></p>
 
         <py-script>
             import numpy as np
@@ -121,9 +175,9 @@
             window.save_wav_file = save_wav_file
         </py-script>
         </section>
-    </main>
+      </main>
 
-    <script>
+      <script>
         let mediaRecorder;
         let audioChunks = [];
 
@@ -138,9 +192,9 @@
                         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                         audioChunks = [];
 
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = document.getElementById("audio-playback");
-                        audio.src = audioUrl;
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = document.getElementById("audio-playback");
+                audio.src = audioUrl;
 
                         pyodide.runPython(`window.save_wav_file(to_js(audioBlob))`);
                     };
@@ -152,55 +206,80 @@
         }
 
         function stopRecording() {
-            mediaRecorder.stop();
+          mediaRecorder.stop();
 
-            document.getElementById("record-btn").disabled = false;
-            document.getElementById("stop-btn").disabled = true;
+          document.getElementById("record-btn").disabled = false;
+          document.getElementById("stop-btn").disabled = true;
         }
 
         function showSection(sectionClass) {
-            const sections = document.querySelectorAll('main section');
-            sections.forEach(section => {
-                if (section.classList.contains(sectionClass)) {
-                    section.style.display = 'block';
-                } else if (!section.classList.contains('selection-section')) {
-                    section.style.display = 'none';
-                }
-            });
+          const sections = document.querySelectorAll("main section");
+          sections.forEach((section) => {
+            if (section.classList.contains(sectionClass)) {
+              section.style.display = "block";
+            } else if (!section.classList.contains("selection-section")) {
+              section.style.display = "none";
+            }
+          });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            showSection('selection-section');
+        // Initial setup to show only the selection section
+        document.addEventListener("DOMContentLoaded", () => {
+          showSection("selection-section");
         });
-    </script>
+      </script>
 
-<h1> Preview of Document: </h1>
-<py-script>
-    from docx import Document
-    from html import escape
-    from js import document, window
-    import os
+      <h1>Preview of Document:</h1>
+      <py-script>
+        from docx import Document from html import escape from js import
+        document, window import os def docx_to_html(docx_path): doc =
+        Document(docx_path) html_content = "
+        <html>
+          <body>
+            " for para in doc.paragraphs: html_content += f"
+            <p>{escape(para.text)}</p>
+            " html_content += "
+          </body>
+        </html>
+        " return html_content def display_html_content(html_content): output_div
+        = Element("output") output_div.element.innerHTML = html_content
+      </py-script>
 
-    def docx_to_html(docx_path):
-        doc = Document(docx_path)
-        html_content = "<html><body>"
-        for para in doc.paragraphs:
-            html_content += f"<p>{escape(para.text)}</p>"
-
-        html_content += "</body></html>"
-        return html_content
-
-    def display_html_content(html_content):
-        output_div = Element("output")
-        output_div.element.innerHTML = html_content
-</py-script>
-
-<script type="text/javascript">
-    async function convertDocx() {
-        const fileInput = document.getElementById('fileInput');
-        if (fileInput.files.length === 0) {
-            alert('Please select a file.');
+      <script type="text/javascript">
+        async function convertDocx() {
+          const fileInput = document.getElementById("fileInput");
+          if (fileInput.files.length === 0) {
+            alert("Please select a file.");
             return;
+          }
+          const file = fileInput.files[0];
+          const reader = new FileReader();
+          reader.onload = async function (event) {
+            const arrayBuffer = event.target.result;
+            const pyodide = await loadPyodide();
+            await pyodide.loadPackage("docx");
+            pyodide.runPython(
+              `
+                    from js import display_html_content, window
+                    from docx import Document
+                    from html import escape
+                    
+                    def docx_to_html(docx_content):
+                        doc = Document(docx_content)
+                        html_content = "<html><body>"
+                        for para in doc.paragraphs:
+                            html_content += f"<p>{escape(para.text)}</p>"
+                        html_content += "</body></html>"
+                        return html_content
+                    
+                    docx_content = bytearray(window.arrayBuffer)
+                    html_content = docx_to_html(docx_content)
+                    display_html_content(html_content)
+                `,
+              { arrayBuffer }
+            );
+          };
+          reader.readAsArrayBuffer(file);
         }
         const file = fileInput.files[0];
         const reader = new FileReader();
@@ -232,13 +311,13 @@
 
 
     <footer class="footer">
-        <div class="footer-content">
-            <a href="https://github.com/eichc/echo" target="_blank">GitHub</a>
-            <span class="separator">|</span>
-            <a href="https://new.rcos.io" target="_blank">An RCOS Project</a>
-            <span class="separator">|</span>
-            <a href="/frontend/about.html">About Us</a>
-        </div>
+      <div class="footer-content">
+        <a href="https://github.com/eichc/echo" target="_blank">GitHub</a>
+        <span class="separator">|</span>
+        <a href="https://new.rcos.io" target="_blank">An RCOS Project</a>
+        <span class="separator">|</span>
+        <a href="/frontend/about.html">About Us</a>
+      </div>
     </footer>
-</body>
+  </body>
 </html>

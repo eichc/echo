@@ -98,6 +98,15 @@
                 <input type="radio" id="audio-pdf" name="audio-doc-format" value="pdf">
                 <label for="audio-pdf">PDF</label>
             </div>
+            <div class="input-group">
+              <label for="wav-input">WAV File:</label>
+              <input
+                type="file"
+                id="wav-input"
+                name="wav-input"
+                accept=".wav"
+              />
+            </div>
             <button type="button" onclick="handleInput()">Submit</button>
           </form>
           <p id="output"></p>
@@ -296,7 +305,6 @@
             `, { arrayBuffer });
         };
         reader.readAsArrayBuffer(file);
-    }
 </script>
 
 

@@ -47,22 +47,30 @@
             <form id="user-form">
                 <div class="input-group">
                     <label for="file-input">Output Document File Name:</label>
-                    <input type="text" id="file-input" name="file-input" placeholder="Enter filename">
+                    <input
+                        type="text"
+                        id="file-input"
+                        name="file-input"
+                        placeholder="Enter filename"
+                    />
                 </div>
                 <div class="input-group">
-                    <label for="wav-input">WAV File:</label>
-                    <input type="file" id="wav-input" name="wav-input" accept=".wav">
-                </div>
-                <div class="input-group">
+                    <label for="wav-input">Audio File:</label>
+                    <input
+                        type="file"
+                        id="wav-input"
+                        name="wav-input"
+                        accept=".wav, .mp3"
+                    />
+              </div>
+                 <div class="input-group">
                     <label for="doc-format">Choose Document Format:</label>
                     <input type="radio" id="docx" name="doc-format" value="docx" checked>
                     <label for="docx">Word Document</label>
                     <input type="radio" id="pdf" name="doc-format" value="pdf">
                     <label for="pdf">PDF</label>
+
                 </div>
-                <button type="button" onclick="handleInput()">Submit</button>
-            </form>
-            <p id="output"></p>
         <py-script>
             from js import document
             from backend.transcribeaudio import transcribe_audio, meeting_minutes, save_as_docx, save_as_pdf
@@ -122,7 +130,9 @@
             handleInput.__name__ = "handleInput" window.handleInput =
             handleInput
           </py-script>
+
         </section>
+        
 
         <section class="record-audio-section" style="display: none">
           <h1>Record Audio</h1>

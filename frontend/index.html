@@ -42,43 +42,49 @@
           </button>
         </section>
 
-        <section class="file-input-section" style="display: none">
-          <h1>Upload Your Files</h1>
-          <form id="user-form">
-            <div class="input-group">
-              <label for="file-input">Output Document File Name:</label>
-              <input
-                type="text"
-                id="file-input"
-                name="file-input"
-                placeholder="Enter filename"
-              />
-            </div>
-            <div class="input-group">
-              <label for="wav-input">WAV File:</label>
-              <input
-                type="file"
-                id="wav-input"
-                name="wav-input"
-                accept=".wav"
-              />
-            </div>
-            <button type="button" onclick="handleInput()">Submit</button>
-          </form>
-          <p id="output"></p>
-          <!-- PyScript block to handle the form submission -->
-          <py-script>
-            from js import document from backend/transcribeaudio import
-            transcribe_audio def handleInput(): wav_input =
-            document.getElementById("wav-input").value filename =
-            document.getElementById("file-input").value result =
-            transcribe_audio(wav_input) minutes = meeting_minutes(result);
-            preview = save_as_docx(minutes, filename); #output_element =
-            document.getElementById("output") #output_element.innerText = result
-            handleInput.__name__ = "handleInput" window.handleInput =
-            handleInput
-          </py-script>
+        <section class="file-input-section" style="display: none;">
+            <h1>Upload Your Files</h1>
+            <form id="user-form">
+                <div class="input-group">
+                    <label for="file-input">Output Document File Name:</label>
+                    <input
+                        type="text"
+                        id="file-input"
+                        name="file-input"
+                        placeholder="Enter filename"
+                    />
+                </div>
+                <div class="input-group">
+                    <label for="wav-input">Audio File:</label>
+                    <input
+                        type="file"
+                        id="wav-input"
+                        name="wav-input"
+                        accept=".wav, .mp3"
+                    />
+                </div>
+                <button type="button" onclick="handleInput()">Submit</button>
+            </form>
+            <p id="output"></p>
+            <!-- PyScript block to handle the form submission -->
+            <py-script>
+                from js import document
+                from backend.transcribeaudio import transcribe_audio
+        
+                def handleInput():
+                    wav_input = document.getElementById("wav-input").files[0]
+                    filename = document.getElementById("file-input").value
+                    result = transcribe_audio(wav_input)
+                    minutes = meeting_minutes(result)
+                    preview = save_as_docx(minutes, filename)
+                    output_element = document.getElementById("output")
+                    output_element.innerText = result
+        
+                handleInput.__name__ = "handleInput"
+                window.handleInput = handleInput
+            </py-script>
         </section>
+        
 
         <section class="record-audio-section" style="display: none">
           <h1>Record Audio</h1>

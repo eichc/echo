@@ -20,6 +20,10 @@ body {
     height:75px;
 }
 
+.main-content {
+    min-height: calc(100vh - 135px - 65px);
+}
+
 .title {
     font-weight: bold;
     font-size: 3em;
@@ -31,7 +35,7 @@ body {
     height: 65px;
     padding: 20px 0;
     text-align: center;
-    position: fixed;
+    position: 0;
     width: 100%;
     bottom: 0;
 }

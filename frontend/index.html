@@ -62,61 +62,12 @@
 
             handleInput.__name__ = "handleInput"
             window.handleInput = handleInput
-        </py-script>
-        </section>
-
-        <section class="record-audio-section" style="display: none;">
-            <h1>Record Audio</h1>
-            <div class="input-group">
-                <label for="audio-file-input">Document File Name:</label>
-                <input type="text" id="audio-file-input" name="audio-file-input" placeholder="Enter filename">
-            </div>
-            <div class="input-group">
-                <label for="audio-doc-format">Choose Document Format:</label>
-                <input type="radio" id="audio-docx" name="audio-doc-format" value="docx" checked>
-                <label for="audio-docx">Word Document</label>
-                <input type="radio" id="audio-pdf" name="audio-doc-format" value="pdf">
-                <label for="audio-pdf">PDF</label>
-            </div>
-            <div class="input-group">
-              <label for="wav-input">WAV File:</label>
-              <input
-                type="file"
-                id="wav-input"
-                name="wav-input"
-                accept=".wav"
-              />
-            </div>
-            <button type="button" onclick="handleInput()">Submit</button>
-          </form>
-          <p id="output"></p>
-          <!-- PyScript block to handle the form submission -->
-          <py-script>
-            from js import document
-            from backend.transcribeaudio import transcribe_audio
-            
-            def handleInput():
-                wav_input = document.getElementById("wav-input").value
-                filename = document.getElementById("file-input").value
-                result = transcribe_audio(wav_input)
-                minutes = meeting_minutes(result)
-                preview = save_as_docx(minutes, filename)
-                
-                # Uncomment if you want to dis
-        </section>
-        
+          </py-script>
+          <button type="button" onclick="handleInput()">Submit</button>
+        </section>       
 
         <section class="record-audio-section" style="display: none">
           <h1>Record Audio</h1>
-          <div class="input-group">
-            <label for="file-input">Document File Name:</label>
-            <input
-              type="text"
-              id="file-input"
-              name="file-input"
-              placeholder="Enter filename"
-            />
-          </div>
           <button id="record-btn" onclick="startRecording()">
             Start Recording
           </button>

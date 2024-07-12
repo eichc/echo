@@ -120,17 +120,17 @@
           <p id="output"></p>
           <!-- PyScript block to handle the form submission -->
           <py-script>
-            from js import document from backend/transcribeaudio import
-            transcribe_audio def handleInput(): wav_input =
-            document.getElementById("wav-input").value filename =
-            document.getElementById("file-input").value result =
-            transcribe_audio(wav_input) minutes = meeting_minutes(result);
-            preview = save_as_docx(minutes, filename); #output_element =
-            document.getElementById("output") #output_element.innerText = result
-            handleInput.__name__ = "handleInput" window.handleInput =
-            handleInput
-          </py-script>
-
+            from js import document
+            from backend.transcribeaudio import transcribe_audio
+            
+            def handleInput():
+                wav_input = document.getElementById("wav-input").value
+                filename = document.getElementById("file-input").value
+                result = transcribe_audio(wav_input)
+                minutes = meeting_minutes(result)
+                preview = save_as_docx(minutes, filename)
+                
+                # Uncomment if you want to dis
         </section>
         
 

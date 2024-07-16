@@ -1,2 +1,5 @@
 env/
 backend/__pycache__
+env/pyvenv.cfg
+backend/__pycache__/transcribeaudio.cpython-39.pyc
+backend/__pycache__/transcribeaudio.cpython-310.pyc

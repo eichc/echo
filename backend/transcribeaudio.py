@@ -1,7 +1,6 @@
 from openai import OpenAI
 from docx import Document
 from fpdf import FPDF
-import os
 
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")

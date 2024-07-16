@@ -43,91 +43,12 @@
             <label for="wav-input">Audio File:</label>
             <input type="file" id="wav-input" name="wav-input" accept=".wav, .mp3" />
           </div>
-          <py-script>
-            from js import document
-            from backend.transcribeaudio import transcribe_audio, meeting_minutes, save_as_docx, save_as_pdf
-
-            def handleInput():
-                wav_input = document.getElementById("wav-input").files[0].path
-                filename = document.getElementById("file-input").value
-                format_choice = document.querySelector('input[name="doc-format"]:checked').value
-                result = transcribe_audio(wav_input)
-                minutes = meeting_minutes(result)
-
-                if format_choice == "docx":
-                    save_as_docx(minutes, filename + ".docx")
-                elif format_choice == "pdf":
-                    save_as_pdf(minutes, filename + ".pdf")
-                document.getElementById("output").innerText = "Document saved as " + filename + "." + format_choice
-
-            handleInput.__name__ = "handleInput"
-            window.handleInput = handleInput
-          </py-script>
-          <button type="button" onclick="handleInput()">Submit</button>
-        </section>       
-
-        <section class="record-audio-section" style="display: none">
-          <h1>Record Audio</h1>
-          <button id="record-btn" onclick="startRecording()">
-            Start Recording
-          </button>
-          <button id="stop-btn" onclick="stopRecording()" disabled>
-            Stop Recording
-          </button>
-          <audio id="audio-playback" controls></audio>
-          <p id="transcription-output"></p>
-
-        <py-script>
-          import numpy as np
-          import wave
-          from js import document, URL, Blobs
-          from pyodide.ffi import to_js
-          from backend.transcribeaudio import transcribe_audio, meeting_minutes, save_as_docx, save_as_pdf
-
-            def save_wav_file(blob):
-                array_buffer = blob.arrayBuffer().to_py()
-                audio_data = np.frombuffer(array_buffer, dtype=np.int16)
-                
-                channels = 1  # Mono
-                sample_width = 2  # 16-bit
-                sample_rate = 44100  # 44100 Hz
-                duration_seconds = 2 * 60 * 60  # 2 hours in seconds
-                max_samples = sample_rate * duration_seconds
-
-                with wave.open('recorded_audio.wav', 'wb') as wf:
-                    wf.setnchannels(1)  # Assuming mono channel
-                    wf.setsampwidth(2)  # Assuming 16-bit samples
-                    wf.setframerate(44100)  # Assuming 44100 Hz sample rate
-                    wf.writeframes(audio_data)
-                    wf.setnchannels(channels)
-                    wf.setsampwidth(sample_width)
-                    wf.setframerate(sample_rate)
-                    wf.writeframes(audio_data[:max_samples * sample_width * channels])
-    
-                result = transcribe_audio("recorded_audio.wav")
-                minutes = meeting_minutes(result)
-                filename = document.getElementById("audio-file-input").value
-                format_choice = document.querySelector('input[name="audio-doc-format"]:checked').value
-                
-                if format_choice == "docx":
-                    save_as_docx(minutes, filename + ".docx")
-                elif format_choice == "pdf":
-                    save_as_pdf(minutes, filename + ".pdf")
-                document.getElementById("transcription-output").innerText = "Document saved as " + filename + "." + format_choice
-
-          window.save_wav_file = save_wav_file
-        </py-script>
-      </section>
-
-      <section class="record-audio-section file-input-section" style="display: none;">
-        <h1>Output Preferences</h1>
-        <form id="record-form">
           <div class="input-group">
-            <label for="audio-file-input">Output Document File Name:</label>
-            <input type="text" id="audio-file-input" name="audio-file-input" placeholder="Enter filename">
+            <label for="file-input">Output Document File Name:</label>
+            <input type="text" id="file-input" name="file-input" placeholder="Enter filename">
           </div>
           <div class="input-group">
-            <label for="audio-doc-format">Choose Document Format:</label>
+            <label for="doc-format">Choose Document Format:</label>
             <div class="doc-type-select">
               <input type="radio" id="docx" name="doc-format" value="docx" checked>
               <label for="docx" class="doc-type-select-option">Word Document</label>
@@ -137,21 +58,39 @@
               <label for="pdf" class="doc-type-select-option">PDF</label>
             </div>
           </div>
-          <button type="button" onclick="handleInput()">Submit</button>
+          <button type="button" onclick="handleFileInput()">Submit</button>
         </form>
         <p id="output"></p>
-        <!-- PyScript block to handle the form submission -->
-        <py-script>
-          from js import document from backend/transcribeaudio import
-          transcribe_audio def handleInput(): wav_input =
-          document.getElementById("wav-input").value filename =
-          document.getElementById("file-input").value result =
-          transcribe_audio(wav_input) minutes = meeting_minutes(result);
-          preview = save_as_docx(minutes, filename); #output_element =
-          document.getElementById("output") #output_element.innerText = result
-          handleInput.__name__ = "handleInput" window.handleInput =
-          handleInput
-        </py-script>
+      </section>
+
+      <section class="record-audio-section" style="display: none;">
+        <h1>Record Audio</h1>
+        <button id="record-btn" onclick="startRecording()">
+          Start Recording
+        </button>
+        <button id="stop-btn" onclick="stopRecording()" disabled>
+          Stop Recording
+        </button>
+        <audio id="audio-playback" controls></audio>
+        <form id="record-form">
+          <div class="input-group">
+            <label for="audio-file-input">Output Document File Name:</label>
+            <input type="text" id="audio-file-input" name="audio-file-input" placeholder="Enter filename">
+          </div>
+          <div class="input-group">
+            <label for="audio-doc-format">Choose Document Format:</label>
+            <div class="doc-type-select">
+              <input type="radio" id="docx" name="audio-doc-format" value="docx" checked>
+              <label for="docx" class="doc-type-select-option">Word Document</label>
+            </div>
+            <div class="doc-type-select">
+              <input type="radio" id="pdf" name="audio-doc-format" value="pdf">
+              <label for="pdf" class="doc-type-select-option">PDF</label>
+            </div>
+          </div>
+          <button type="button" onclick="handleAudioInput()">Submit</button>
+        </form>
+        <p id="transcription-output"></p>
       </section>
     </main>
     
@@ -160,34 +99,31 @@
       let audioChunks = [];
 
       async function startRecording() {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          mediaRecorder = new MediaRecorder(stream);
-          mediaRecorder.ondataavailable = event => {
-              audioChunks.push(event.data);
-          };
-          mediaRecorder.onstop = async () => {
-              const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-              audioChunks = [];
-
-              const audioUrl = URL.createObjectURL(audioBlob);
-              const audio = document.getElementById("audio-playback");
-              audio.src = audioUrl;
-
-              const arrayBuffer = await audioBlob.arrayBuffer();
-              pyodide.runPythonAsync(`
-                  from js import save_wav_file, window
-                  window.arrayBuffer = arrayBuffer
-                  save_wav_file(to_js(window.arrayBuffer))
-              `, { arrayBuffer });
-          };
-          mediaRecorder.start();
-
-          document.getElementById("record-btn").disabled = true;
-          document.getElementById("stop-btn").disabled = false;
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = event => {
+          audioChunks.push(event.data);
+        };
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+          audioChunks = [];
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = document.getElementById("audio-playback");
+          audio.src = audioUrl;
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          const pyodide = await loadPyodide();
+          await pyodide.runPythonAsync(`
+            from js import save_wav_file
+            save_wav_file(to_js(arrayBuffer))
+          `, { arrayBuffer });
+        };
+        mediaRecorder.start();
+        document.getElementById("record-btn").disabled = true;
+        document.getElementById("stop-btn").disabled = false;
       }
+
       function stopRecording() {
         mediaRecorder.stop();
-
         document.getElementById("record-btn").disabled = false;
         document.getElementById("stop-btn").disabled = true;
       }
@@ -202,183 +138,56 @@
           }
         });
       }
-      // Initial setup to show only the selection section
+
       document.addEventListener("DOMContentLoaded", () => {
         showSection("selection-section");
       });
 
-      async function handleInput() {
-        const audioInput = document.getElementById("audio-input");
-        if (audioInput.files.length === 0) {
+      async function handleFileInput() {
+        const wavInput = document.getElementById("wav-input").files[0];
+        if (!wavInput) {
           alert("Please select an audio file.");
           return;
         }
-        const audioFile = audioInput.files[0];
-        const reader = new FileReader();
-        reader.onload = async function (event) {
-          const arrayBuffer = event.target.result;
-          const filename = document.getElementById("file-input").value;
-          const format_choice = document.querySelector('input[name="doc-format"]:checked').value;
+        const filename = document.getElementById("file-input").value;
+        const formatChoice = document.querySelector('input[name="doc-format"]:checked').value;
+        const arrayBuffer = await wavInput.arrayBuffer();
+        const pyodide = await loadPyodide();
+        await pyodide.runPythonAsync(`
+          from js import document
+          from backend.transcribeaudio import transcribe_audio, meeting_minutes, save_as_docx, save_as_pdf
+          def handleFileInput(arrayBuffer, filename, formatChoice):
+            result = transcribe_audio(arrayBuffer)
+            minutes = meeting_minutes(result)
+            if formatChoice == "docx":
+              save_as_docx(minutes, filename + ".docx")
+            elif formatChoice == "pdf":
+              save_as_pdf(minutes, filename + ".pdf")
+            document.getElementById("output").innerText = "Document saved as " + filename + "." + formatChoice
+          handleFileInput(to_js(arrayBuffer), filename, formatChoice)
+        `, { arrayBuffer, filename, formatChoice });
+      }
 
-          const pyodide = await loadPyodide();
-          if (audioFile.type === 'audio/mp3') {
-            pyodide.runPythonAsync(`
-              from js import document, window
-              audio_data = window.convert_to_wav(to_js(arrayBuffer))
-              handle_conversion(audio_data, filename, format_choice)
-            `, { arrayBuffer });
-          } else {
-            pyodide.runPythonAsync(`
-              from js import document, window
-              handle_conversion(to_js(arrayBuffer), filename, format_choice)
-            `, { arrayBuffer });
-          }
-        };
-        reader.readAsArrayBuffer(audioFile);
+      async function handleAudioInput() {
+        const filename = document.getElementById("audio-file-input").value;
+        const formatChoice = document.querySelector('input[name="audio-doc-format"]:checked').value;
+        const pyodide = await loadPyodide();
+        await pyodide.runPythonAsync(`
+          from js import document
+          from backend.transcribeaudio import transcribe_audio, meeting_minutes, save_as_docx, save_as_pdf
+          def handleAudioInput(filename, formatChoice):
+            result = transcribe_audio("recorded_audio.wav")
+            minutes = meeting_minutes(result)
+            if formatChoice == "docx":
+              save_as_docx(minutes, filename + ".docx")
+            elif formatChoice == "pdf":
+              save_as_pdf(minutes, filename + ".pdf")
+            document.getElementById("transcription-output").innerText = "Document saved as " + filename + "." + formatChoice
+          handleAudioInput(filename, formatChoice)
+        `, { filename, formatChoice });
       }
     </script>
-    <py-script>
-      import wave
-      import os
-
-      def split_wav_file(input_wav_path, chunk_size=25 * 1024 * 1024):
-          # Define the base name for the output chunks
-          base_name = os.path.splitext(input_wav_path)[0]
-
-          # Open the input WAV file
-          with wave.open(input_wav_path, 'rb') as wf:
-              params = wf.getparams()
-              frame_rate = wf.getframerate()
-              channels = wf.getnchannels()
-              sampwidth = wf.getsampwidth()
-              frames_per_chunk = chunk_size // (frame_rate * channels * sampwidth)
-
-              chunk_index = 0
-              while True:
-                  frames = wf.readframes(frames_per_chunk)
-                  if not frames:
-                      break
-
-                  chunk_filename = f"{base_name}_chunk{chunk_index}.wav"
-                  with wave.open(chunk_filename, 'wb') as chunk_wf:
-                      chunk_wf.setparams(params)
-                      chunk_wf.writeframes(frames)
-
-                  chunk_index += 1
-
-      def save_wav_file(blob):
-          array_buffer = blob.arrayBuffer().to_py()
-          audio_data = np.frombuffer(array_buffer, dtype=np.int16)
-
-          channels = 1  # Mono
-          sample_width = 2  # 16-bit
-          sample_rate = 44100  # 44100 Hz
-          duration_seconds = 2 * 60 * 60  # 2 hours in seconds
-          max_samples = sample_rate * duration_seconds
-
-          with wave.open('recorded_audio.wav', 'wb') as wf:
-              wf.setnchannels(channels)
-              wf.setsampwidth(sample_width)
-              wf.setframerate(sample_rate)
-              wf.writeframes(audio_data[:max_samples * sample_width * channels])
-
-          # Split the file into 25MB chunks if needed
-          split_wav_file('recorded_audio.wav')
-
-          result = transcribe_audio('recorded_audio.wav')
-          minutes = meeting_minutes(result)
-          preview = save_as_docx(minutes, filename)
-          document.getElementById("transcription-output").innerText = "Audio recorded and saved as recorded_audio.wav!"
-          
-      from pydub import AudioSegment
-      import io
-          
-      def convert_to_wav(mp3_data):
-        audio_segment = AudioSegment.from_mp3(io.BytesIO(mp3_data))
-        wav_io = io.BytesIO()
-        audio_segment.export(wav_io, format="wav")
-        return wav_io.getvalue()
-          
-      window.save_wav_file = save_wav_file
-  </py-script>
-    <h1>Preview of Document:</h1>
-    <py-script>
-      from docx import Document from html import escape from js import
-      document, window import os def docx_to_html(docx_path): doc =
-      Document(docx_path) html_content = "
-      <html>
-        <body>
-          " for para in doc.paragraphs: html_content += f"
-          <p>{escape(para.text)}</p>
-          " html_content += "
-        </body>
-      </html>
-      " return html_content def display_html_content(html_content): output_div
-      = Element("output") output_div.element.innerHTML = html_content
-    </py-script>
-
-    <script type="text/javascript">
-      async function convertDocx() {
-        const fileInput = document.getElementById("fileInput");
-        if (fileInput.files.length === 0) {
-          alert("Please select a file.");
-          return;
-        }
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = async function (event) {
-          const arrayBuffer = event.target.result;
-          const pyodide = await loadPyodide();
-          await pyodide.loadPackage("docx");
-          pyodide.runPython(
-            `
-                  from js import display_html_content, window
-                  from docx import Document
-                  from html import escape
-                  
-                  def docx_to_html(docx_content):
-                      doc = Document(docx_content)
-                      html_content = "<html><body>"
-                      for para in doc.paragraphs:
-                          html_content += f"<p>{escape(para.text)}</p>"
-                      html_content += "</body></html>"
-                      return html_content
-                  
-                  docx_content = bytearray(window.arrayBuffer)
-                  html_content = docx_to_html(docx_content)
-                  display_html_content(html_content)
-              `,
-            { arrayBuffer }
-          );
-        };
-        reader.readAsArrayBuffer(file);
-      }
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      reader.onload = async function(event) {
-          const arrayBuffer = event.target.result;
-          const pyodide = await loadPyodide();
-          await pyodide.loadPackage('docx');
-          pyodide.runPython(`
-              from js import display_html_content, window
-              from docx import Document
-              from html import escape
-              
-              def docx_to_html(docx_content):
-                  doc = Document(docx_content)
-                  html_content = "<html><body>"
-                  for para in doc.paragraphs:
-                      html_content += f"<p>{escape(para.text)}</p>"
-                  html_content += "</body></html>"
-                  return html_content
-              
-              docx_content = bytearray(window.arrayBuffer)
-              html_content = docx_to_html(docx_content)
-              display_html_content(html_content)
-          `, { arrayBuffer });
-      };
-      reader.readAsArrayBuffer(file);
-</script>
+  </div>
 
   <footer class="footer">
     <div class="footer-content">
@@ -389,6 +198,16 @@
       <a href="/frontend/about.html">About Us</a>
     </div>
   </footer>
+
+  <py-script>
+    import js
+    import pyodide
+    import backend.transcribeaudio as ta
+
+    def save_wav_file(arrayBuffer):
+      with open("recorded_audio.wav", "wb") as f:
+        f.write(arrayBuffer)
+  </py-script>
 </body>
 
 </html>

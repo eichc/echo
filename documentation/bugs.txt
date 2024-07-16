@@ -1,0 +1,6 @@
+start recording sets back to start of home page, does not record
+footer is not at bottom of page
+upload file has 2 submit buttons for two different forms
+upload file submit buttons do nothing
+record audio submit also does nothing
+"preview of document" is shown before pressing submit

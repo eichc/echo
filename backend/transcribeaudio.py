@@ -4,7 +4,7 @@ from fpdf import FPDF
 
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")
-    # api_key="",
+    api_key="sk-svcacct-TX95YXKBx0oayUnVMdJtT3BlbkFJUnDhchOMIbTg57TWC69O",
 )
 
 def transcribe_audio(audio_file_path, language='en'):
@@ -12,7 +12,7 @@ def transcribe_audio(audio_file_path, language='en'):
         transcription = client.audio.transcriptions.create(
             model="whisper-1", 
             file=audio_file)
-    return transcription['text']
+    return transcription.text
 
 def abstract_summary_extraction(transcription):
     response = client.chat.completions.create(

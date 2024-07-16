@@ -4,7 +4,7 @@ from fpdf import FPDF
 
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")
-    # api_key="",
+    #api_key="",
 )
 
 def transcribe_audio(audio_file_path, language='en'):

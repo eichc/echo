@@ -89,6 +89,7 @@ def meeting_minutes(transcription):
     action_items = action_item_extraction(transcription)
     sentiment = sentiment_analysis(transcription)
     return {
+        'transcription': transcription,
         'abstract_summary': abstract_summary,
         'key_points': key_points,
         'action_items': action_items,

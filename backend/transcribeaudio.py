@@ -1,6 +1,7 @@
 from openai import OpenAI
 from docx import Document
 from fpdf import FPDF
+import os
 
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")
@@ -16,7 +17,7 @@ def transcribe_audio(audio_file_path, language='en'):
 
 def abstract_summary_extraction(transcription):
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         temperature=0,
         messages=[
             {
@@ -33,7 +34,7 @@ def abstract_summary_extraction(transcription):
 
 def key_points_extraction(transcription):
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         temperature=0,
         messages=[
             {
@@ -50,7 +51,7 @@ def key_points_extraction(transcription):
 
 def action_item_extraction(transcription):
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         temperature=0,
         messages=[
             {
@@ -67,7 +68,7 @@ def action_item_extraction(transcription):
 
 def sentiment_analysis(transcription):
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         temperature=0,
         messages=[
             {
@@ -95,12 +96,21 @@ def meeting_minutes(transcription):
     }
 
 def save_as_docx(minutes, filename):
+    #this creates the directory if it doesnt exist
+    directory = os.path.dirname(filename)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    #Overwrite the file if it exists
+    if os.path.exists(filename):
+        os.remove(filename)
+    
     doc = Document()
     for key, value in minutes.items():
         heading = ' '.join(word.capitalize() for word in key.split('_'))
         doc.add_heading(heading, level=1)
         doc.add_paragraph(value)
-        doc.add_paragraph()  # Add a line break between sections
+        doc.add_paragraph()  #Add a line break between sections
     doc.save(filename)
 
 def save_as_pdf(minutes, filename):

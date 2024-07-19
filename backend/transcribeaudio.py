@@ -118,14 +118,17 @@ def save_as_pdf(minutes, filename):
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     pdf.set_font("Arial", size=12)
+    
     for key, value in minutes.items():
         heading = ' '.join(word.capitalize() for word in key.split('_'))
         pdf.set_font("Arial", 'B', size=14)
         pdf.cell(200, 10, txt=heading, ln=True, align='L')
         pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 10, txt=value)
-        pdf.ln(10)  # Add a line break between sections
+        pdf.multi_cell(0, 5, txt=value)
+        pdf.ln(5)  
+    
     pdf.output(filename)
+
 
 # Example usage:
 # transcription = transcribe_audio("path_to_audio_file")

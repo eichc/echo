@@ -1,6 +1,7 @@
 from openai import OpenAI
 from docx import Document
 from fpdf import FPDF
+import os
 
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")
@@ -95,12 +96,21 @@ def meeting_minutes(transcription):
     }
 
 def save_as_docx(minutes, filename):
+    #this creates the directory if it doesnt exist
+    directory = os.path.dirname(filename)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    #Overwrite the file if it exists
+    if os.path.exists(filename):
+        os.remove(filename)
+    
     doc = Document()
     for key, value in minutes.items():
         heading = ' '.join(word.capitalize() for word in key.split('_'))
         doc.add_heading(heading, level=1)
         doc.add_paragraph(value)
-        doc.add_paragraph()  # Add a line break between sections
+        doc.add_paragraph()  #Add a line break between sections
     doc.save(filename)
 
 def save_as_pdf(minutes, filename):

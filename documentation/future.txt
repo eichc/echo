@@ -1,9 +1,6 @@
 FUTURE PLANS:
 
-- convert mp3 to wav X
-- test api code
-- download as pdf
-- finishing bios X
+- get rid of current pyscript and re-implement into separate files
+- download document after created
 - only show preview after completion
-- splitting longer audio into 25mb chunks (anything longer than 30 minutes) X
-- set hard limit (2 hours?) X
+- splitting longer audio into 25mb chunks (anything longer than 30 minutes)

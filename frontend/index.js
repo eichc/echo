@@ -1,31 +1,20 @@
 let mediaRecorder;
 let audioChunks = [];
+let pyodidePromise = null;
+
+async function getPyodideInstance() {
+  if (!pyodidePromise) {
+    pyodidePromise = loadPyodide();
+  }
+  return pyodidePromise;
+}
+
 
 async function startRecording() {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   mediaRecorder = new MediaRecorder(stream);
   mediaRecorder.ondataavailable = (event) => {
     audioChunks.push(event.data);
-  };
-  mediaRecorder.onstop = async () => {
-    const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-    audioChunks = [];
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = document.getElementById("audio-playback");
-    audio.src = audioUrl;
-    const arrayBuffer = await audioBlob.arrayBuffer();
-    const pyodide = await loadPyodide();
-    await pyodide.runPythonAsync(
-      `
-            import js
-            import pyodide
-            import backend.transcribeaudio as ta
-            
-            with open("recorded_audio.mp3", "wb") as f:
-              f.write(arrayBuffer)
-          `,
-      { arrayBuffer }
-    );
   };
   mediaRecorder.start();
   document.getElementById("record-btn").disabled = true;
@@ -34,6 +23,26 @@ async function startRecording() {
 
 function stopRecording() {
   mediaRecorder.stop();
+  mediaRecorder.onstop = async () => {
+    const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
+    audioChunks = [];
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = document.getElementById("audio-playback");
+    audio.src = audioUrl;
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const pyodide = await getPyodideInstance();
+    pyodide.globals.set("arrayBuffer", arrayBuffer);
+    await pyodide.runPythonAsync(`
+      import js
+      import pyodide
+      import backend.transcribeaudio as ta
+
+      buffer = js.arrayBuffer.to_py()
+      
+      with open("recorded_audio.mp3", "wb") as f:
+        f.write(buffer)
+    `);
+  };
   document.getElementById("record-btn").disabled = false;
   document.getElementById("stop-btn").disabled = true;
 }
@@ -64,7 +73,7 @@ async function handleFileInput() {
     'input[name="doc-format"]:checked'
   ).value;
   const arrayBuffer = await wavInput.arrayBuffer();
-  const pyodide = await loadPyodide();
+  const pyodide = await getPyodideInstance();
   await pyodide.runPythonAsync(
     `
           from js import document
@@ -88,7 +97,7 @@ async function handleAudioInput() {
   const formatChoice = document.querySelector(
     'input[name="audio-doc-format"]:checked'
   ).value;
-  const pyodide = await loadPyodide();
+  const pyodide = await getPyodideInstance();
   await pyodide.runPythonAsync(
     `
           from js import document

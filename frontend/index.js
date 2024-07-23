@@ -17,8 +17,12 @@ async function startRecording() {
     const pyodide = await loadPyodide();
     await pyodide.runPythonAsync(
       `
-            from js import save_wav_file
-            save_wav_file(to_js(arrayBuffer))
+            import js
+            import pyodide
+            import backend.transcribeaudio as ta
+            
+            with open("recorded_audio.mp3", "wb") as f:
+              f.write(arrayBuffer)
           `,
       { arrayBuffer }
     );
@@ -90,7 +94,7 @@ async function handleAudioInput() {
           from js import document
           from backend.transcribeaudio import transcribe_audio, meeting_minutes, save_as_docx, save_as_pdf
           def handleAudioInput(filename, formatChoice):
-            result = transcribe_audio("recorded_audio.wav")
+            result = transcribe_audio("recorded_audio.mp3")
             minutes = meeting_minutes(result)
             if formatChoice == "docx":
               save_as_docx(minutes, filename + ".docx")

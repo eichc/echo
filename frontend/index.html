@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
   <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
   <link rel="stylesheet" href="styles.css" />
+  <script type="text/javascript" src="index.js"></script>
 </head>
 
 <body>
@@ -44,7 +45,7 @@
             <input type="file" id="mp3-input" name="mp3-input" accept=".mp3" />
           </div>
           <div class="input-group">
-            <label for="file-input">Output File Name (Include .docx/.pdf Extension):</label>
+            <label for="file-input">Output File Name:</label>
             <input type="text" id="file-input" name="file-input" placeholder="Enter filename">
           </div>
           <div class="input-group">
@@ -74,7 +75,7 @@
         <audio id="audio-playback" controls></audio>
         <form id="record-form">
           <div class="input-group">
-            <label for="audio-file-input">Output File Name (Include .docx/.pdf Extension):</label>
+            <label for="audio-file-input">Output File Name:</label>
             <input type="text" id="audio-file-input" name="audio-file-input" placeholder="Enter filename">
           </div>
           <div class="input-group">
@@ -93,10 +94,7 @@
         <p id="transcription-output"></p>
       </section>
     </main>
-    
-    <!--moved this into index.js!-->
-    <script src = "index.js"></script>
-  </div>
+ </div>
 
   <footer class="footer">
     <div class="footer-content">
@@ -107,16 +105,6 @@
       <a href="/frontend/about.html">About Us</a>
     </div>
   </footer>
-
-  <py-script>
-    import js
-    import pyodide
-    import backend.transcribeaudio as ta
-
-    def save_wav_file(arrayBuffer):
-      with open("recorded_audio.wav", "wb") as f:
-        f.write(arrayBuffer)
-  </py-script>
 </body>
 
 </html>

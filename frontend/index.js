@@ -48,10 +48,10 @@ function stopRecording() {
       import pyodide
       import backend.transcribeaudio as ta
 
-      buffer = js.arrayBuffer.to_py()
+      arrayBuffer_ = js.arrayBuffer.to_py()
       
       with open("recorded_audio.mp3", "wb") as f:
-        f.write(buffer)
+        f.write(arrayBuffer_)
     `);
   };
   document.getElementById("record-btn").disabled = false;
@@ -257,10 +257,15 @@ async function handleAudioInput() {
     'input[name="audio-doc-format"]:checked'
   ).value;
   const pyodide = await getPyodideInstance();
+  pyodide.globals.set("filename", filename);
+  pyodide.globals.set("formatChoice", formatChoice);
   await pyodide.runPythonAsync(
     `
           from js import document
           from backend.transcribeaudio import transcribe_audio, meeting_minutes, save_as_docx, save_as_pdf
+          
+          filename_ = js.filename.to_py()
+          formatChoice_ = js.formatChoice.to_py()
           def handleAudioInput(filename, formatChoice):
             result = transcribe_audio("recorded_audio.mp3")
             minutes = meeting_minutes(result)

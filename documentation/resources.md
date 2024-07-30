@@ -9,4 +9,5 @@
 
 ## APIs & Code
 Whisper on GitHub: <https://github.com/openai/whisper>\
-OpenAI tutorial on Meetings: <https://platform.openai.com/docs/tutorials/meeting-minutes>
+OpenAI tutorial on Meetings: <https://platform.openai.com/docs/tutorials/meeting-minutes>\
+Pyodide API: <https://pyodide.org/en/0.19.1/usage/api/js-api.html#>

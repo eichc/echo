@@ -2,13 +2,23 @@ let mediaRecorder;
 let audioChunks = [];
 let pyodidePromise = null;
 
-async function getPyodideInstance() {
-  if (!pyodidePromise) {
-    pyodidePromise = loadPyodide();
-  }
-  return pyodidePromise;
+
+let pyodide;
+let pyodideReadyPromise = loadPyodideAndPackages();
+
+async function loadPyodideAndPackages() {
+  pyodide = await loadPyodide();
+  await pyodide.loadPackage("micropip");
+  await pyodide.runPythonAsync(`
+    import micropip
+   
+  `);
 }
 
+async function getPyodideInstance() {
+  await pyodideReadyPromise;
+  return pyodide;
+}
 
 async function startRecording() {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -31,7 +41,8 @@ function stopRecording() {
     audio.src = audioUrl;
     const arrayBuffer = await audioBlob.arrayBuffer();
     const pyodide = await getPyodideInstance();
-    pyodide.globals.set("arrayBuffer", arrayBuffer);
+    pyodide.globals.set("arrayBuffer", new Uint8Array(arrayBuffer));
+    //pyodide.globals.set("arrayBuffer", arrayBuffer);
     await pyodide.runPythonAsync(`
       import js
       import pyodide
@@ -61,6 +72,8 @@ function showSection(sectionClass) {
 document.addEventListener("DOMContentLoaded", () => {
   showSection("selection-section");
 });
+
+
 
 async function handleFileInput() {
   const wavInput = document.getElementById("mp3-input").files[0];
@@ -201,7 +214,7 @@ async function handleFileInput() {
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-        
+       
         for key, value in minutes.items():
             heading = ' '.join(word.capitalize() for word in key.split('_'))
             pdf.set_font("Arial", 'B', size=14)
@@ -254,6 +267,6 @@ async function handleAudioInput() {
             document.getElementById("transcription-output").innerText = "Document saved as " + filename + "." + formatChoice
           handleAudioInput(filename, formatChoice)
         `,
-    { filename, formatChoice }
+  //  { filename, formatChoice }
   );
 }

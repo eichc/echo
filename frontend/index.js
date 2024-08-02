@@ -87,22 +87,12 @@ async function handleFileInput() {
   ).value;
   const arrayBuffer = await wavInput.arrayBuffer();
   const pyodide = await getPyodideInstance();
-  pyodide.globals.set("arrayBuffer", new Uint8Array(arrayBuffer));
-  await pyodide.runPythonAsync(
-    `
-    
-    
-    await micropip.install("numpy")
-    await micropip.install("openai")
-    await micropip.install("ssl")
-    await micropip.install("fpdf2")
-    await micropip.install("python-docx")
+  pyodide.globals.set("arrayBuffer", arrayBuffer);
+  pyodide.globals.set("filename", filename);
+  pyodide.globals.set("formatChoice", formatChoice);
 
-
-    import js
-    import numpy as np
-    #from backend.transcribeaudio import transcribe_audio, meeting_minutes, save_as_docx, save_as_pdf
-
+  await pyodide.runPythonAsync(`
+    from js import document
     from openai import OpenAI
     from docx import Document
     from fpdf import FPDF
@@ -224,31 +214,32 @@ async function handleFileInput() {
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-    
-    for key, value in minutes.items():
-        heading = ' '.join(word.capitalize() for word in key.split('_'))
-        pdf.set_font("Arial", 'B', size=14)
-        pdf.cell(200, 10, txt=heading, ln=True, align='L')
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 5, txt=value)
-        pdf.ln(5)  
-    
-    pdf.output(filename)
+       
+        for key, value in minutes.items():
+            heading = ' '.join(word.capitalize() for word in key.split('_'))
+            pdf.set_font("Arial", 'B', size=14)
+            pdf.cell(200, 10, txt=heading, ln=True, align='L')
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(0, 5, txt=value)
+            pdf.ln(5)  
+        
+        pdf.output(filename)
 
-    arrayBuffer = js.globals.get("arrayBuffer")
-
+    arrayBuffer_ = js.arrayBuffer.to_py()
+    filename_ = js.filename.to_py()
+    formatChoice_ = js.formatChoice.to_py()
+    
     def handleFileInput(arrayBuffer, filename, formatChoice):
-      result = transcribe_audio(arrayBuffer)
-      minutes = meeting_minutes(result)
+      result = ta.transcribe_audio(arrayBuffer)
+      minutes = ta.meeting_minutes(result)
       if formatChoice == "docx":
-        save_as_docx(minutes, filename + ".docx")
+        ta.save_as_docx(minutes, filename + ".docx")
       elif formatChoice == "pdf":
-        save_as_pdf(minutes, filename + ".pdf")
+        ta.save_as_pdf(minutes, filename + ".pdf")
       document.getElementById("output").innerText = "Document saved as " + filename + "." + formatChoice
-
-    handleFileInput(arrayBuffer.to_py(), filename, formatChoice)
-        `
-  );
+    
+    handleFileInput(arrayBuffer_, filename_, formatChoice_)
+  `);
 }
 
 async function handleAudioInput() {

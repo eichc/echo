@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Echo - Home</title>
+  <link rel="icon" href="/static/assets/favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="main-header">
+    <a class="header-a" href="/"><img class="header-logo" src="/static/assets/logo.png" /></a>
+  </header>
+  <div class="main-content">
+    <h1 class="title">Welcome to Echo!</h1>
+    <div class="welcome-desc">
+      Create meeting recordings/audio into organized meeting minutes
+    </div>
+    <main>
+      <section class="selection-section">
+        <h1>Choose an Option</h1>
+        <button onclick="showSection('file-input-section')">Upload Your File</button>
+        <button onclick="showSection('record-audio-section')">Record Audio</button>
+      </section>
+      <section class="file-input-section" style="display: none;">
+        <h1>Upload Your File</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+          <div class="input-group">
+            <label for="mp3-input">Audio File:</label>
+            <input type="file" id="mp3-input" name="file" accept=".mp3" />
+          </div>
+          <div class="input-group">
+            <label for="file-input">Output File Name:</label>
+            <input type="text" id="file-input" name="filename" placeholder="Enter filename">
+          </div>
+          <div class="input-group">
+            <label for="doc-format">Choose Document Format:</label>
+            <div class="doc-type-select">
+              <input type="radio" id="docx" name="format_choice" value="docx" checked>
+              <label for="docx" class="doc-type-select-option">Word Document</label>
+            </div>
+            <div class="doc-type-select">
+              <input type="radio" id="pdf" name="format_choice" value="pdf">
+              <label for="pdf" class="doc-type-select-option">PDF</label>
+            </div>
+          </div>
+          <button type="button" onclick="handleFileInput()">Submit</button>
+        </form>
+        <p id="output"></p>
+      </section>
+      <section class="record-audio-section" style="display: none;">
+        <h1>Record Audio</h1>
+        <button id="record-btn" onclick="startRecording()">Start Recording</button>
+        <button id="stop-btn" onclick="stopRecording()" disabled>Stop Recording</button>
+        <audio id="audio-playback" controls></audio>
+        <form id="record-form">
+          <div class="input-group">
+            <label for="audio-file-input">Output File Name:</label>
+            <input type="text" id="audio-file-input" name="filename" placeholder="Enter filename">
+          </div>
+          <div class="input-group">
+            <label for="audio-doc-format">Choose Document Format:</label>
+            <div class="doc-type-select">
+              <input type="radio" id="docx" name="format_choice" value="docx" checked>
+              <label for="docx" class="doc-type-select-option">Word Document</label>
+            </div>
+            <div class="doc-type-select">
+              <input type="radio" id="pdf" name="format_choice" value="pdf">
+              <label for="pdf" class="doc-type-select-option">PDF</label>
+            </div>
+          </div>
+          <button type="button" onclick="handleAudioInput()">Submit</button>
+        </form>
+        <p id="transcription-output"></p>
+      </section>
+    </main>
+  </div>
+  <footer class="footer">
+    <div class="footer-content">
+      <a href="https://github.com/eichc/echo" target="_blank">GitHub</a>
+      <span class="separator">|</span>
+      <a href="https://new.rcos.io" target="_blank">An RCOS Project</a>
+      <span class="separator">|</span>
+      <a href="/about.html">About Us</a>
+    </div>
+  </footer>
+  <script src="newindex.js"></script>
+</body>
+</html>

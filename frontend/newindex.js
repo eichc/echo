@@ -74,3 +74,4 @@ async function handleAudioInput() {
   document.getElementById('audio-sbmt').disabled = false;
   document.getElementById('audio-sbmt').innerHTML = "Submit";
 }
+

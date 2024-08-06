@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function handleFileInput() {
   const formData = new FormData(document.getElementById('upload-form'));
-  const response = await fetch('/audio/EarningsCall.mp3', {
+  const response = await fetch('http://127.0.0.1:5000/upload', {
     method: 'POST',
     body: formData
   });

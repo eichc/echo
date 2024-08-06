@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 from openai import OpenAI
 from docx import Document
 from fpdf import FPDF
@@ -6,6 +7,12 @@ import os
 import tempfile
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
+# Configure the upload folder
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def transcribe_audio(audio_file_path, language='en'):
@@ -17,10 +24,10 @@ def transcribe_audio(audio_file_path, language='en'):
 
 def abstract_summary_extraction(transcription):
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4",
         temperature=0,
         messages=[
-            {"role": "system", "content": "You are a highly skilled AI..."},
+            {"role": "system", "content": "You are a highly skilled AI trained in language comprehension and summarization. I would like you to read the following text and summarize it into a concise abstract paragraph. Aim to retain the most important points, providing a coherent and readable summary that could help a person understand the main points of the discussion without needing to read the entire text. Please avoid unnecessary details or tangential points."},
             {"role": "user", "content": transcription}
         ]
     )
@@ -28,10 +35,10 @@ def abstract_summary_extraction(transcription):
 
 def key_points_extraction(transcription):
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4",
         temperature=0,
         messages=[
-            {"role": "system", "content": "You are a proficient AI..."},
+            {"role": "system", "content": "You are a proficient AI with a specialty in distilling information into key points. Based on the following text, identify and list the main points that were discussed or brought up. These should be the most important ideas, findings, or topics that are crucial to the essence of the discussion. Your goal is to provide a list that someone could read to quickly understand what was talked about."},
             {"role": "user", "content": transcription}
         ]
     )
@@ -39,10 +46,10 @@ def key_points_extraction(transcription):
 
 def action_item_extraction(transcription):
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4",
         temperature=0,
         messages=[
-            {"role": "system", "content": "You are an AI expert..."},
+            {"role": "system", "content": "You are an AI expert in analyzing conversations and extracting action items. Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list these action items clearly and concisely."},
             {"role": "user", "content": transcription}
         ]
     )
@@ -50,10 +57,10 @@ def action_item_extraction(transcription):
 
 def sentiment_analysis(transcription):
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4",
         temperature=0,
         messages=[
-            {"role": "system", "content": "As an AI with expertise..."},
+            {"role": "system", "content": "As an AI with expertise in language and emotion analysis, your task is to analyze the sentiment of the following text. Please consider the overall tone of the discussion, the emotion conveyed by the language used, and the context in which words and phrases are used. Indicate whether the sentiment is generally positive, negative, or neutral, and provide brief explanations for your analysis where possible."},
             {"role": "user", "content": transcription}
         ]
     )
@@ -105,23 +112,25 @@ def upload_file():
 
     filename = request.form['filename']
     format_choice = request.form['format_choice']
-    temp_dir = tempfile.mkdtemp()
-    audio_path = os.path.join(temp_dir, 'audio.mp3')
-    file.save(audio_path)
+    save_path = os.path.join(app.config['UPLOAD_FOLDER'], 'uploaded_audio.mp3')
+    file.save(save_path)
 
-    transcription = transcribe_audio(audio_path)
-    minutes = meeting_minutes(transcription)
+    try:
+        transcription = transcribe_audio(save_path)
+        minutes = meeting_minutes(transcription)
 
-    if format_choice == 'docx':
-        output_filename = os.path.join(temp_dir, filename + '.docx')
-        save_as_docx(minutes, output_filename)
-    elif format_choice == 'pdf':
-        output_filename = os.path.join(temp_dir, filename + '.pdf')
-        save_as_pdf(minutes, output_filename)
-    else:
-        return jsonify({'error': 'Invalid format choice'}), 400
+        if format_choice == 'docx':
+            output_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename + '.docx')
+            save_as_docx(minutes, output_filename)
+        elif format_choice == 'pdf':
+            output_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename + '.pdf')
+            save_as_pdf(minutes, output_filename)
+        else:
+            return jsonify({'error': 'Invalid format choice'}), 400
 
-    return send_file(output_filename, as_attachment=True)
+        return send_file(output_filename, as_attachment=True)
+    finally:
+        os.remove(save_path)  # Clean up the uploaded file
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, debug=True)

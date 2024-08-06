@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
+from flask import *
 from openai import OpenAI
 from docx import Document
 from fpdf import FPDF
 import os
 import tempfile
+from flask_cors import *
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes

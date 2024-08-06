@@ -8,12 +8,11 @@ body {
 
 .main-header {
     margin-top:0;
-    height: 115px;
+    height: 75px;
     background-color: rgb(144, 188, 231);
+    justify-content: center;
     padding: 20px;
     margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
 }
 
 .header-logo {
@@ -32,12 +31,12 @@ body {
 
 .footer {
     background-color: rgb(144, 188, 231);
-    height: 65px;
     padding: 20px 0;
     text-align: center;
     position: 0;
     width: 100%;
     bottom: 0;
+    height: 25px;
 }
 
 .footer-content {

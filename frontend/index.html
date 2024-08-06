@@ -1,62 +1,46 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Echo - Home</title>
-  <link rel="icon" href="/frontend/assets/favicon.png" />
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
-  <script type="text/javascript" src="index.js"></script>
-  <!-- <link rel="stylesheet" href="https://pyscript.net/releases/2024.6.1/core.css" /> -->
-  <!-- <script type="module" src="https://pyscript.net/releases/2024.6.1/core.js"></script>
-  <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-  <script defer src="https://pyscript.net/alpha/pyscript.js"></script> -->
+  <link rel="icon" href="/static/assets/favicon.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
   <header class="main-header">
-    <a class="header-a" href="/frontend/index.html"><img class="header-logo" src="/frontend/assets/logo.png" /></a>
+    <a class="header-a" href="/"><img class="header-logo" src="/static/assets/logo.png" /></a>
   </header>
-
   <div class="main-content">
     <h1 class="title">Welcome to Echo!</h1>
     <div class="welcome-desc">
       Create meeting recordings/audio into organized meeting minutes
     </div>
-
     <main>
-      <!-- Selection Section -->
       <section class="selection-section">
         <h1>Choose an Option</h1>
-        <button onclick="showSection('file-input-section')">
-          Upload Your File
-        </button>
-        <button onclick="showSection('record-audio-section')">
-          Record Audio
-        </button>
+        <button onclick="showSection('file-input-section')">Upload Your File</button>
+        <button onclick="showSection('record-audio-section')">Record Audio</button>
       </section>
-
       <section class="file-input-section" style="display: none;">
         <h1>Upload Your File</h1>
-        <form id="upload-form">
+        <form id="upload-form" enctype="multipart/form-data">
           <div class="input-group">
             <label for="mp3-input">Audio File:</label>
-            <input type="file" id="mp3-input" name="mp3-input" accept=".mp3" />
+            <input type="file" id="mp3-input" name="file" accept=".mp3" />
           </div>
           <div class="input-group">
             <label for="file-input">Output File Name:</label>
-            <input type="text" id="file-input" name="file-input" placeholder="Enter filename">
+            <input type="text" id="file-input" name="filename" placeholder="Enter filename">
           </div>
           <div class="input-group">
             <label for="doc-format">Choose Document Format:</label>
             <div class="doc-type-select">
-              <input type="radio" id="docx" name="doc-format" value="docx" checked>
+              <input type="radio" id="docx" name="format_choice" value="docx" checked>
               <label for="docx" class="doc-type-select-option">Word Document</label>
             </div>
             <div class="doc-type-select">
-              <input type="radio" id="pdf" name="doc-format" value="pdf">
+              <input type="radio" id="pdf" name="format_choice" value="pdf">
               <label for="pdf" class="doc-type-select-option">PDF</label>
             </div>
           </div>
@@ -64,29 +48,24 @@
         </form>
         <p id="output"></p>
       </section>
-
       <section class="record-audio-section" style="display: none;">
         <h1>Record Audio</h1>
-        <button id="record-btn" onclick="startRecording()">
-          Start Recording
-        </button>
-        <button id="stop-btn" onclick="stopRecording()" disabled>
-          Stop Recording
-        </button>
+        <button id="record-btn" onclick="startRecording()">Start Recording</button>
+        <button id="stop-btn" onclick="stopRecording()" disabled>Stop Recording</button>
         <audio id="audio-playback" controls></audio>
         <form id="record-form">
           <div class="input-group">
             <label for="audio-file-input">Output File Name:</label>
-            <input type="text" id="audio-file-input" name="audio-file-input" placeholder="Enter filename">
+            <input type="text" id="audio-file-input" name="filename" placeholder="Enter filename">
           </div>
           <div class="input-group">
             <label for="audio-doc-format">Choose Document Format:</label>
             <div class="doc-type-select">
-              <input type="radio" id="docx" name="audio-doc-format" value="docx" checked>
+              <input type="radio" id="docx" name="format_choice" value="docx" checked>
               <label for="docx" class="doc-type-select-option">Word Document</label>
             </div>
             <div class="doc-type-select">
-              <input type="radio" id="pdf" name="audio-doc-format" value="pdf">
+              <input type="radio" id="pdf" name="format_choice" value="pdf">
               <label for="pdf" class="doc-type-select-option">PDF</label>
             </div>
           </div>
@@ -95,17 +74,16 @@
         <p id="transcription-output"></p>
       </section>
     </main>
- </div>
-
+  </div>
   <footer class="footer">
     <div class="footer-content">
       <a href="https://github.com/eichc/echo" target="_blank">GitHub</a>
       <span class="separator">|</span>
       <a href="https://new.rcos.io" target="_blank">An RCOS Project</a>
       <span class="separator">|</span>
-      <a href="/frontend/about.html">About Us</a>
+      <a href="/about.html">About Us</a>
     </div>
   </footer>
+  <script src="index.js"></script>
 </body>
-
 </html>

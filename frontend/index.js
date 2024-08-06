@@ -1,6 +1,8 @@
 // JavaScript for handling file upload and recording audio
 
 async function handleFileInput() {
+  document.getElementById('file-sbmt').disabled = true;
+  document.getElementById('file-sbmt').innerHTML = "Loading...";
   const formData = new FormData(document.getElementById('upload-form'));
   const response = await fetch('http://localhost:5000/upload', {
     method: 'POST',
@@ -8,6 +10,8 @@ async function handleFileInput() {
   });
   const result = await response.text();
   document.getElementById('output').innerText = result;
+  document.getElementById('file-sbmt').disabled = false;
+  document.getElementById('file-sbmt').innerHTML = "Submit";
 }
 
 let mediaRecorder;
@@ -38,6 +42,8 @@ function stopRecording() {
 }
 
 async function handleAudioInput() {
+  document.getElementById('audio-sbmt').disabled = true;
+  document.getElementById('audio-sbmt').innerHTML = "Loading...";
   const formData = new FormData();
   const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
   formData.append('file', audioBlob, 'recorded_audio.mp3');
@@ -50,6 +56,8 @@ async function handleAudioInput() {
   });
   const result = await response.text();
   document.getElementById('transcription-output').innerText = result;
+  document.getElementById('audio-sbmt').disabled = false;
+  document.getElementById('audio-sbmt').innerHTML = "Submit";
 }
 
 function showSection(sectionId) {

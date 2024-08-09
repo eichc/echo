@@ -64,5 +64,17 @@ function showSection(sectionId) {
   document.querySelectorAll('main > section').forEach(section => {
     section.style.display = 'none';
   });
-  document.querySelector(`.${sectionId}`).style.display = 'block';
+  document.querySelectorAll(`.${sectionId}`).forEach(section => {
+    section.style.display = 'block';
+  });
+  if (sectionId == 'file-input-section') {
+    document.getElementById('file-btn').classList.replace("btn-unselected", "btn-selected");
+    document.getElementById('record-btn').classList.replace("btn-selected", "btn-unselected");
+    
+  }
+  if (sectionId == 'record-audio-section') {
+    document.getElementById('record-btn').classList.replace("btn-unselected", "btn-selected");
+    document.getElementById('file-btn').classList.replace("btn-selected", "btn-unselected");
+    
+  }
 }

@@ -137,6 +137,19 @@ button:disabled {
     cursor: not-allowed;
 }
 
+.btn-unselected {
+    background-color: #28a745;
+}
+
+.btn-selected {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.btn-selected:hover {
+    background-color: #6c757d;
+}
+
 audio {
     width: 100%;
     margin-top: 15px;

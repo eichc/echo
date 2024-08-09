@@ -19,10 +19,11 @@
       Create meeting recordings/audio into organized meeting minutes
     </div>
     <main>
-      <section class="selection-section">
+      <section class="selection-section file-input-section record-audio-section">
         <h1>Choose an Option</h1>
-        <button onclick="showSection('file-input-section')">Upload Your File</button>
-        <button onclick="showSection('record-audio-section')">Record Audio</button>
+        <button id="file-btn" class="btn-unselected" onclick="showSection('file-input-section')">Upload Your File</button>
+        <button id="record-btn" class="btn-unselected" onclick="showSection('record-audio-section')">Record Audio</button>
+      </section>
       </section>
       <section class="file-input-section" style="display: none;">
         <h1>Upload Your File</h1>
